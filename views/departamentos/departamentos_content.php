@@ -1,5 +1,19 @@
 <h2>Lista de departamentos ID: <?= htmlspecialchars($_SESSION['id'] ?? '') ?></h2>
 
+<form method="post" action="<?= BASE_URL ?>/departamentos_crear">
+  <div class="form-group">
+    <label for="nombre">Crear departamento</label>
+    <input 
+      type="text" 
+      class="form-control" 
+      id="nombre" 
+      name="nombre" 
+      placeholder="Nombre del departamento" 
+    >
+  </div>
+  <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
 <table class="table table-bordered table-striped">
   <thead class="thead-dark">
     <tr>

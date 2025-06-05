@@ -52,3 +52,4 @@ $router->get('/departamentos', function () {
     // Carga la vista de crear usuarios
     require __DIR__ . '/../views/departamentos/departamentos.php';
 });
+$router->post('/departamentos_crear', 'DepartamentoController@store'); //Ruta para crear un departamento

@@ -25,7 +25,7 @@ class UsuarioController {
             // Verifica que todos los campos requeridos estén completos
             if (empty($nombre) || empty($email) || empty($passwd) || empty($alias) || empty($telefono) || empty($departamento_id)) {
                 $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
-                header('Location: /usuarios_crear');
+                header('Location:' . BASE_URL . '/usuarios_crear');
                 exit;
             }
 

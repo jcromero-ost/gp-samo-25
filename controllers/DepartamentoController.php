@@ -1,5 +1,5 @@
 <?php
-// Incluye el modelo Usuario, que contiene la lógica de acceso a la base de datos
+// Incluye el modelo Departamento, que contiene la lógica de acceso a la base de datos
 require_once __DIR__ . '/../models/Departamento.php';
 
 // Carga el archivo de configuración general del proyecto, útil para constantes como BASE_URL
@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config/config.php';
 
 class DepartamentoController {
 
-    // Método para crear un nuevo usuario (usualmente al enviar un formulario)
+    // Método para crear un nuevo departamento (usualmente al enviar un formulario)
     public function store() {
         session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
 
@@ -15,44 +15,32 @@ class DepartamentoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
             $nombre = $_POST['nombre'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $passwd = $_POST['passwd'] ?? '';
-            $alias = $_POST['alias'] ?? '';
-            $telefono = $_POST['telefono'] ?? '';
-            $fecha_creacion = date('Y-m-d'); // Fecha actual en formato YYYY-MM-DD
-            $departamento_id = $_POST['departamento_id'] ?? '';
 
             // Verifica que todos los campos requeridos estén completos
-            if (empty($nombre) || empty($email) || empty($passwd) || empty($alias) || empty($telefono) || empty($departamento_id)) {
-                $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
-                header('Location: /usuarios_crear');
+            if (empty($nombre)) {
+                $_SESSION['error'] = 'Debes ingresar un nombre para crear un departamento';
+                header('Location:' . BASE_URL . '/departamentos');
                 exit;
             }
 
-            // Crea un nuevo usuario usando el modelo Usuario
-            $usuario = new Usuario();
-            $usuario->create([
-                'nombre' => $nombre,
-                'email' => $email,
-                'passwd' => $passwd,
-                'alias' => $alias,
-                'telefono' => $telefono,
-                'fecha_creacion' => $fecha_creacion,
-                'departamento_id' => $departamento_id
+            // Crea un nuevo departamento usando el modelo Departamento
+            $departamento = new Departamento();
+            $departamento->create([
+                'nombre' => $nombre
             ]);
 
             // Mensaje de éxito y redirección
-            $_SESSION['success'] = 'Usuario creado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios_crear');
+            $_SESSION['success'] = 'Departamento creado correctamente.';
+            header('Location: ' . BASE_URL . '/departamentos');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios_crear');
+        header('Location: ' . BASE_URL . '/departamentos');
         exit;
     }
 
-    // Método para actualizar un usuario
+    // Método para actualizar un departamento
     public function update() {
         session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
 
@@ -60,42 +48,34 @@ class DepartamentoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
             $nombre = $_POST['nombre'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $alias = $_POST['alias'] ?? '';
-            $telefono = $_POST['telefono'] ?? '';
-            $departamento_id = $_POST['departamento_id'] ?? '';
             $id = $_SESSION['id'];
 
             // Verifica que todos los campos requeridos estén completos
-            if (empty($nombre) || empty($email) || empty($alias) || empty($telefono) || empty($departamento_id)) {
-                $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
-                header('Location: /usuarios_crear');
+            if (empty($nombre)) {
+                $_SESSION['error'] = 'Debes ingresar un nombre para crear un departamento';
+                header('Location:' . BASE_URL . '/departamentos');
                 exit;
             }
 
-            // Actualiza un usuario usando el modelo Usuario
-            $usuario = new Usuario();
-            $usuario->update([
+            // Actualiza un departamento usando el modelo Departamento
+            $departamento = new Departamento();
+            $departamento->update([
                 'nombre' => $nombre,
-                'email' => $email,
-                'alias' => $alias,
-                'telefono' => $telefono,
-                'departamento_id' => $departamento_id,
                 'id' => $id
             ]);
 
             // Mensaje de éxito y redirección
-            $_SESSION['success'] = 'Usuario actualizado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios_crear');
+            $_SESSION['success'] = 'Departamento actualizado correctamente.';
+            header('Location: ' . BASE_URL . '/departamentos');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios_crear');
+        header('Location: ' . BASE_URL . '/departamentos');
         exit;
     }
 
-    // Método para borrar un usuario
+    // Método para borrar un departamento
     public function delete() {
         session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
 
@@ -104,27 +84,27 @@ class DepartamentoController {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
             $id = $_SESSION['id'];
 
-            // Borra un usuario usando el modelo Usuario
-            $usuario = new Usuario();
-            $usuario->delete([
+            // Borra un departamento usando el modelo Departamento
+            $departamento = new Departamento();
+            $departamento->delete([
                 'id' => $id
             ]);
 
             // Mensaje de éxito y redirección
-            $_SESSION['success'] = 'Usuario eliminado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios_crear');
+            $_SESSION['success'] = 'Departamento eliminado correctamente.';
+            header('Location: ' . BASE_URL . '/departamentos');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios_crear');
+        header('Location: ' . BASE_URL . '/departamentos');
         exit;
     }
 }
 
 // Controlador centralizado según la acción enviada por POST
 if (isset($_POST['accion'])) {
-    $controller = new UsuarioController();
+    $controller = new DepartamentoController();
 
     switch ($_POST['accion']) {
         case 'editar':
