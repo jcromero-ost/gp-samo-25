@@ -9,6 +9,7 @@
       <th>Teléfono</th>
       <th>Fecha de creación</th>
       <th>Departamento ID</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -21,6 +22,12 @@
           <td><?= htmlspecialchars($usuario['telefono']) ?></td>
           <td><?= htmlspecialchars($usuario['fecha_creacion']) ?></td>
           <td><?= htmlspecialchars($usuario['departamento_id']) ?></td>
+          <td>
+            <form method="post" action="<?= BASE_URL ?>/usuarios_eliminar" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+              <input type="hidden" name="id" value="<?= htmlspecialchars($usuario['id']) ?>">
+              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
         </tr>
       <?php endforeach; ?>
     <?php else: ?>

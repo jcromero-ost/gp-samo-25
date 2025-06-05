@@ -19,6 +19,7 @@
     <tr>
       <th>ID</th>
       <th>Nombre</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -27,11 +28,17 @@
         <tr>
           <td><?= htmlspecialchars($departamento['id']) ?></td>
           <td><?= htmlspecialchars($departamento['nombre']) ?></td>
+          <td>
+            <form method="post" action="<?= BASE_URL ?>/departamentos_eliminar" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este departamento?');">
+              <input type="hidden" name="id" value="<?= htmlspecialchars($departamento['id']) ?>">
+              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
         </tr>
       <?php endforeach; ?>
     <?php else: ?>
       <tr>
-        <td colspan="7" class="text-center">No hay usuarios registrados.</td>
+        <td colspan="7" class="text-center">No hay departamentos registrados.</td>
       </tr>
     <?php endif; ?>
   </tbody>

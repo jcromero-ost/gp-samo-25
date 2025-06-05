@@ -40,6 +40,7 @@ $router->get('/usuarios_crear', function () {
     require __DIR__ . '/../views/usuarios/usuarios_crear.php';
 });
 $router->post('/usuarios_crear', 'UsuarioController@store'); //Ruta para crear un usuario
+$router->post('/usuarios_eliminar', 'UsuarioController@delete'); //Ruta para eliminar un usuario
 
 // Ruta para la página de lista de usuarios
 $router->get('/usuarios', function () {
@@ -53,3 +54,5 @@ $router->get('/departamentos', function () {
     require __DIR__ . '/../views/departamentos/departamentos.php';
 });
 $router->post('/departamentos_crear', 'DepartamentoController@store'); //Ruta para crear un departamento
+$router->post('/departamentos_eliminar', 'DepartamentoController@delete'); //Ruta para eliminar un departamento
+

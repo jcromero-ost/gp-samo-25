@@ -64,7 +64,7 @@ class UsuarioController {
             $alias = $_POST['alias'] ?? '';
             $telefono = $_POST['telefono'] ?? '';
             $departamento_id = $_POST['departamento_id'] ?? '';
-            $id = $_SESSION['id'];
+            $id = $_POST['id'];
 
             // Verifica que todos los campos requeridos estén completos
             if (empty($nombre) || empty($email) || empty($alias) || empty($telefono) || empty($departamento_id)) {
@@ -102,7 +102,7 @@ class UsuarioController {
         // Solo procesa si la solicitud es por POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
-            $id = $_SESSION['id'];
+            $id = $_POST['id'];
 
             // Borra un usuario usando el modelo Usuario
             $usuario = new Usuario();
@@ -112,26 +112,12 @@ class UsuarioController {
 
             // Mensaje de éxito y redirección
             $_SESSION['success'] = 'Usuario eliminado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios_crear');
+            header('Location: ' . BASE_URL . '/usuarios');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios_crear');
+        header('Location: ' . BASE_URL . '/usuarios');
         exit;
-    }
-}
-
-// Controlador centralizado según la acción enviada por POST
-if (isset($_POST['accion'])) {
-    $controller = new UsuarioController();
-
-    switch ($_POST['accion']) {
-        case 'editar':
-            $controller->update();
-            break;
-        case 'eliminar':
-            $controller->delete();
-            break;
     }
 }
