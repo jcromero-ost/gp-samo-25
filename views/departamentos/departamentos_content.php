@@ -1,4 +1,4 @@
-<h2>Lista de departamentos ID: <?= htmlspecialchars($_SESSION['id'] ?? '') ?></h2>
+<h2>Lista de departamento ID: <?= htmlspecialchars($_SESSION['id'] ?? '') ?></h2>
 
 <form method="post" action="<?= BASE_URL ?>/departamentos_crear">
   <div class="form-group">
