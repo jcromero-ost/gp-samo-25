@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Vista 5 - Accesos Flotantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f7fc; }
+  </style>
+</head>
+<body>
+<div class="position-fixed top-50 end-0 translate-middle-y me-2 d-flex flex-column gap-2 z-3">
+            <a href="#" class="btn btn-danger rounded-circle shadow" title="Dashboard">🏠</a>
+            <a href="#" class="btn btn-danger rounded-circle shadow" title="Artículos">📦</a>
+            <a href="#" class="btn btn-danger rounded-circle shadow" title="Clientes">👥</a>
+            <a href="#" class="btn btn-dark rounded-circle shadow" title="Salir">⛔</a>
+          </div>
+
+<div class="container my-4">
+  <h2 class="text-center text-primary mb-4">Orden de Fabricación</h2>
+  <form class="bg-white p-4 rounded shadow-sm">
+    <div class="row mb-2">
+      <div class="col-md-2">
+        <label class="form-label">Orden</label>
+        <input type="text" class="form-control" value="27000">
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Artículo</label>
+        <input type="text" class="form-control" value="23788 CISNE CR/LG. BLLS VERTI. 30% WO - 70% PC">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Color</label>
+        <input type="text" class="form-control" value="72">
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-2">
+        <label class="form-label">Prendas lanzadas</label>
+        <input type="number" class="form-control" value="4">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Prendas reales</label>
+        <input type="number" class="form-control" value="0">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Fecha</label>
+        <input type="date" class="form-control" value="2025-06-10">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Entrega</label>
+        <input type="date" class="form-control" value="2025-08-10">
+      </div>
+    </div>
+
+    <h5 class="text-muted border-bottom pb-1">Materias Primas</h5>
+    <table class="table table-sm table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tintada</th>
+          <th>Cantidad/Ud</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>MPH42572</td><td>DANUBIO 2/25</td><td>E25096994</td><td>0.810</td><td>3.240</td></tr>
+        <tr><td>MCDELANT</td><td>DELANTEROS</td><td></td><td>1.000</td><td>4.000</td></tr>
+        <tr><td>MCESPALD</td><td>ESPALDAS</td><td></td><td>1.000</td><td>4.000</td></tr>
+      </tbody>
+    </table>
+
+    <div class="mb-3">
+      <label class="form-label">Estado de la orden</label>
+      <select class="form-select">
+        <option selected>Reserva de materia</option>
+        <option>En producción</option>
+        <option>Finalizada</option>
+      </select>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Prendas recibidas</label>
+        <input type="number" class="form-control" value="0">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Recibido parcial</label>
+        <input type="number" class="form-control" value="0">
+      </div>
+      <div class="col-md-3 form-check mt-3">
+        <input type="checkbox" class="form-check-input" id="cerrada">
+        <label class="form-check-label" for="cerrada">Orden cerrada</label>
+      </div>
+    </div>
+
+    <h5 class="text-muted border-bottom pb-1">Tallas</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>46</th><th>48</th><th>50</th><th>52</th><th>54</th><th>56</th><th>58</th><th>60</th><th>62</th><th>64</th><th>66</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="1"></td>
+            <td><input type="number" class="form-control" value="2"></td>
+            <td><input type="number" class="form-control" value="1"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+            <td><input type="number" class="form-control" value="0"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-end">
+      <button type="submit" class="btn btn-primary">Guardar orden</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
