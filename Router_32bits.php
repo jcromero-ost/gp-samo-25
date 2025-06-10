@@ -20,7 +20,6 @@ class Router
     // Método privado que agrega una ruta al arreglo, con su método, path y callback
     private function addRoute($method, $path, $callback)
     {
-        // compact('method', 'path', 'callback') crea un array asociativo con esas claves
         $this->routes[] = compact('method', 'path', 'callback');
     }
 
@@ -32,7 +31,7 @@ class Router
 
         // Ajustar la base (ej: /GPintranet)
         $base = '/GPintranet';
-        if (str_starts_with($requestUri, $base)) {
+        if (substr($requestUri, 0, strlen($base)) === $base) {
             $requestUri = substr($requestUri, strlen($base));
         }
 
@@ -41,8 +40,8 @@ class Router
                 $callback = $route['callback'];
 
                 // Soporte para 'Clase@metodo'
-                if (is_string($callback) && str_contains($callback, '@')) {
-                    [$class, $method] = explode('@', $callback);
+                if (is_string($callback) && strpos($callback, '@') !== false) {
+                    list($class, $method) = explode('@', $callback);
 
                     $controllerFile = __DIR__ . "/controllers/{$class}.php";
                     if (file_exists($controllerFile)) {

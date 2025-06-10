@@ -13,7 +13,7 @@ class DBFReader {
             throw new Exception("Archivo no encontrado: $filepath"); // Verifica que el archivo exista
         }
 
-        $this->file = fopen($filepath, "rb"); // Abre el archivo en modo binario solo lectura
+        $this->file = fopen($filepath, "r+b"); // permite lectura y escritura
 
         $this->parseHeader(); // Llama a método para leer el encabezado
     }
@@ -55,7 +55,8 @@ class DBFReader {
             $record = []; // Arreglo para almacenar un registro
             foreach ($this->fields as $field) {
                 $raw = fread($this->file, $field['length']); // Lee los bytes correspondientes al campo
-                $record[$field['name']] = trim($raw);        // Elimina espacios en blanco y asigna el valor al campo
+                $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252')); // Elimina espacios en blanco y asigna el valor al campo
+       // Elimina espacios en blanco y asigna el valor al campo
             }
 
             $records[] = $record; // Agrega el registro al arreglo de resultados
@@ -63,6 +64,96 @@ class DBFReader {
 
         return $records; // Devuelve todos los registros leídos
     }
+
+    private function normalizarDato($valor, $tipo, $longitud) {
+        $valor = trim($valor);
+
+        switch ($tipo) {
+            case 'C': // Texto
+                $valor = substr($valor, 0, $longitud);
+                return str_pad($valor, $longitud, ' ', STR_PAD_RIGHT);
+
+            case 'N': // Numérico
+            case 'F': // Float
+                $valor = preg_replace('/[^0-9.\-]/', '', $valor);
+                $valor = substr($valor, 0, $longitud);
+                return str_pad($valor, $longitud, ' ', STR_PAD_LEFT);
+
+            case 'D': // Fecha en formato YYYYMMDD
+                if (preg_match('/^\d{8}$/', $valor)) {
+                    return $valor;
+                }
+                return str_repeat('0', 8);
+
+            case 'L': // Lógico (Y/N/T/F)
+                $v = strtoupper(substr($valor, 0, 1));
+                return in_array($v, ['Y','N','T','F']) ? $v : ' ';
+
+            default:
+                return str_pad('', $longitud, ' ');
+        }
+    }
+
+
+    public function insertRecord($data) {
+        $record = ' '; // Primer byte: espacio indica que el registro está activo (no eliminado)
+
+        foreach ($this->fields as $field) {
+            $name = $field['name'];
+            $type = $field['type'];
+            $length = $field['length'];
+
+            $value = isset($data[$name]) ? $data[$name] : '';
+
+            // Usar la función de normalización
+            $normalized = $this->normalizarDato($value, $type, $length);
+
+            // Convertir a CP1252 solo si es texto (C)
+            if ($type === 'C') {
+                $normalized = mb_convert_encoding($normalized, 'CP1252', 'UTF-8');
+            }
+
+            $record .= $normalized;
+        }
+
+        // Escribir el registro
+        fseek($this->file, 0, SEEK_END);
+        fwrite($this->file, $record);
+
+        // Actualizar el número de registros
+        $this->recordCount++;
+        fseek($this->file, 4);
+        fwrite($this->file, pack("V", $this->recordCount));
+
+        fflush($this->file);
+        return true;
+    }
+
+
+
+    public function deleteRecord(int $recordNumber): bool {
+        if ($recordNumber < 0 || $recordNumber >= $this->recordCount) {
+            echo "<script>console.error('Número de registro inválido para eliminar.');</script>";
+            return false;
+        }
+
+        // Posicionar puntero al inicio del registro:
+        // El primer registro comienza justo después del header, en $this->headerSize
+        $pos = $this->headerSize + ($recordNumber * $this->recordSize);
+        fseek($this->file, $pos);
+
+        // Escribir '*' para marcar eliminado
+        $written = fwrite($this->file, '*');
+
+        fflush($this->file);
+
+        return ($written === 1);
+    }
+
+    public function getFields() {
+        return $this->fields;
+    }
+
 
     // Destructor: cierra el archivo cuando se destruye el objeto
     public function __destruct() {

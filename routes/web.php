@@ -56,3 +56,26 @@ $router->get('/departamentos', function () {
 $router->post('/departamentos_crear', 'DepartamentoController@store'); //Ruta para crear un departamento
 $router->post('/departamentos_eliminar', 'DepartamentoController@delete'); //Ruta para eliminar un departamento
 
+// Ruta para la página de lista de clientes
+$router->get('/clientes', function () {
+    // Carga la vista de clientes
+    require __DIR__ . '/../views/clientes/clientes.php';
+});
+
+// Ruta para la página de crear clientes
+$router->get('/clientes_crear', function () {
+    // Carga la vista de clientes
+    require __DIR__ . '/../views/clientes/clientes_crear.php';
+});
+$router->post('/clientes_crear', 'ClienteController@store'); //Ruta para crear un cliente
+$router->post('/clientes_eliminar', 'ClienteController@delete'); //Ruta para eliminar un cliente
+
+
+
+// Ruta para la página de lista de articulos
+$router->get('/articulos', function () {
+    // Carga la vista de articulos
+    require __DIR__ . '/../views/articulos/articulos.php';
+});
+
+
