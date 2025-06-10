@@ -139,7 +139,7 @@ public function store()
                 $datos[$nombre] = is_numeric($valor) ? floatval($valor) : 0.0;
                 break;
 
-            case 'D': // Fecha YYYYMMDD o 8 espacios
+            case 'D': // Fecha YYYYMMDD o 8 espacio
                 if (!empty($valor) && strtotime($valor) !== false) {
                     $datos[$nombre] = date('Ymd', strtotime($valor));
                 } else {
