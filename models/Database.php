@@ -41,7 +41,33 @@ class DBFReader {
         fseek($this->file, $this->headerSize); // Posiciona el puntero en el inicio de los registros de datos
     }
 
+    //Coge los ultimos 10 registros (temporal)
+    public function getRecords($limit = 10) {
+        $records = [];
+
+        for ($i = 0; $i < $this->recordCount; $i++) {
+            $deleted = fread($this->file, 1);
+            if ($deleted === '*') {
+                fseek($this->file, $this->recordSize - 1, SEEK_CUR);
+                continue;
+            }
+
+            $record = [];
+            foreach ($this->fields as $field) {
+                $raw = fread($this->file, $field['length']);
+                $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252'));
+            }
+
+            $records[] = $record;
+        }
+
+        // Devuelve solo los últimos $limit registros
+        return array_slice($records, -$limit);
+    }
+
+
     // Método público para obtener todos los registros del archivo DBF
+    /*
     public function getRecords() {
         $records = []; // Arreglo que contendrá todos los registros
 
@@ -64,6 +90,42 @@ class DBFReader {
 
         return $records; // Devuelve todos los registros leídos
     }
+        */
+
+    private $currentRecordIndex = 0; // Índice para llevar la posición actual del registro leído
+
+    public function nextRecord() {
+        // Si ya leímos todos los registros, devolvemos false para indicar fin
+        if ($this->currentRecordIndex >= $this->recordCount) {
+            return false; // No quedan registros
+        }
+
+        // Calculamos la posición en el archivo donde comienza el registro actual
+        $pos = $this->headerSize + ($this->currentRecordIndex * $this->recordSize);
+        fseek($this->file, $pos); // Posicionamos el puntero del archivo en esa posición
+
+        // Leemos el primer byte del registro que indica si está eliminado o no
+        $deleted = fread($this->file, 1);
+        if ($deleted === '*') {
+            // Si el registro está marcado como eliminado ('*')
+            $this->currentRecordIndex++; // Avanzamos al siguiente índice
+            return $this->nextRecord();  // Llamamos recursivamente para saltar el eliminado
+        }
+
+        $record = []; // Array para guardar los datos del registro
+
+        // Leemos cada campo del registro según la definición en $this->fields
+        foreach ($this->fields as $field) {
+            $raw = fread($this->file, $field['length']); // Leemos la cantidad de bytes que ocupa el campo
+            // Convertimos la codificación a UTF-8 y limpiamos espacios en blanco
+            $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252'));
+        }
+
+        $this->currentRecordIndex++; // Avanzamos al siguiente registro para la próxima llamada
+
+        return $record; // Devolvemos el registro leído como un arreglo asociativo
+    }
+
 
     private function normalizarDato($valor, $tipo, $longitud) {
         $valor = trim($valor);
@@ -96,7 +158,7 @@ class DBFReader {
 
 
     public function insertRecord($data) {
-        $record = ' '; // Primer byte: espacio indica que el registro está activo (no eliminado)
+        $record = ' '; // Primer byte indica que el registro está activo (no eliminado)
 
         foreach ($this->fields as $field) {
             $name = $field['name'];
@@ -105,10 +167,10 @@ class DBFReader {
 
             $value = isset($data[$name]) ? $data[$name] : '';
 
-            // Usar la función de normalización
+            // Normaliza
             $normalized = $this->normalizarDato($value, $type, $length);
 
-            // Convertir a CP1252 solo si es texto (C)
+            // Codifica a CP1252 si es texto
             if ($type === 'C') {
                 $normalized = mb_convert_encoding($normalized, 'CP1252', 'UTF-8');
             }
@@ -116,20 +178,37 @@ class DBFReader {
             $record .= $normalized;
         }
 
-        // Escribir el registro
-        fseek($this->file, 0, SEEK_END);
+
+        // Mover el puntero justo antes del byte 0x1A (EOF), si existe
+        $fileSize = filesize($this->filePath);
+        $lastByte = '';
+        if ($fileSize > 0) {
+            fseek($this->file, -1, SEEK_END);
+            $lastByte = fread($this->file, 1);
+        }
+
+        if ($lastByte === chr(0x1A)) {
+            // Reescribimos encima del byte 0x1A
+            fseek($this->file, -1, SEEK_END);
+        } else {
+            // Si no existe, simplemente escribe al final
+            fseek($this->file, 0, SEEK_END);
+        }
+
+        // Escribir el nuevo registro
         fwrite($this->file, $record);
 
-        // Actualizar el número de registros
+        // Añadir nuevamente el byte EOF
+        fwrite($this->file, chr(0x1A));
+
+        // Actualizar número de registros en el encabezado
         $this->recordCount++;
-        fseek($this->file, 4);
-        fwrite($this->file, pack("V", $this->recordCount));
+        fseek($this->file, 4); // Posición del contador de registros
+        fwrite($this->file, pack("V", $this->recordCount)); // 4 bytes little endian
 
         fflush($this->file);
         return true;
     }
-
-
 
     public function deleteRecord(int $recordNumber): bool {
         if ($recordNumber < 0 || $recordNumber >= $this->recordCount) {

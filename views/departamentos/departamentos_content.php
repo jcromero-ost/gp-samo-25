@@ -29,10 +29,7 @@
           <td><?= htmlspecialchars($departamento['id']) ?></td>
           <td><?= htmlspecialchars($departamento['nombre']) ?></td>
           <td>
-            <form method="post" action="<?= BASE_URL ?>/departamentos_eliminar" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este departamento?');">
-              <input type="hidden" name="id" value="<?= htmlspecialchars($departamento['id']) ?>">
-              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-            </form>
+              <button type="submit" class="btn btn-sm btn-danger btn-eliminar" data-id="<?= $departamento['id'] ?>">Eliminar</button>
           </td>
         </tr>
       <?php endforeach; ?>
@@ -49,3 +46,8 @@
     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
   </button>
 </form>
+
+<!-- Modal eliminar departamento -->
+<?php include_once __DIR__ . '../../components/modals/departamentos/departamentos_eliminar_modal.php'; ?>
+
+<script src="./public/js/departamentos/departamentos_eliminar.js"></script>

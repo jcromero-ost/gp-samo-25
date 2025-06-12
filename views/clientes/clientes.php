@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../models/Cliente.php';
 $clienteModel = new Cliente();
 $clientes = $clienteModel->getAllClientes(); //Llama a la funcion para mostrar todos los usuarios
 
-
+/*
 $registroValido = null;
 $registroNuevo = null;
 
@@ -39,6 +39,7 @@ function compararRegistros($r1, $r2) {
 }
 
 compararRegistros($registroValido, $registroNuevo);
+*/
 
 // Define la ruta al archivo de contenido específico de la vista actual
 $view = __DIR__ . '/clientes_content.php';

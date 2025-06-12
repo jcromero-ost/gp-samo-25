@@ -12,7 +12,7 @@
       <th>Postal</th>
       <th>Pais</th>
       <th>Telefono</th>
-      <th>Acciones</th>
+      <th class="d-none">Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -29,7 +29,7 @@
           <td><?= htmlspecialchars($cliente['PAIS'] ?? '') ?></td>
           <td><?= htmlspecialchars($cliente['TELEFONO'] ?? '') ?></td>
           <td>
-            <form method="post" action="<?= BASE_URL ?>/clientes_eliminar" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+            <form method="post" action="<?= BASE_URL ?>/clientes_eliminar" class="d-inline d-none" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
               <input type="hidden" name="codigo" value="<?= htmlspecialchars($cliente['CODIGO']) ?>">
               <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
             </form>

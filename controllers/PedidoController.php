@@ -1,13 +1,39 @@
 <?php
-// Incluye el modelo Usuario, que contiene la lógica de acceso a la base de datos
-require_once __DIR__ . '/../models/Usuario.php';
+// Incluye el modelo Articulo, que contiene la lógica de acceso a la base de datos
+require_once __DIR__ . '/../models/Pedido.php';
 
 // Carga el archivo de configuración general del proyecto, útil para constantes como BASE_URL
 require_once __DIR__ . '/../config/config.php';
 
-class UsuarioController {
+class PedidoController {
 
-    // Método para crear un nuevo usuario (usualmente al enviar un formulario)
+    // Método para visualizar las lineas de un pedido
+    public function ver_lineas()
+    {
+        // Verificamos que el ID del pedido (CLAPED) venga en la solicitud POST
+        if (!isset($_POST['CLAPED'])) {
+            http_response_code(400); // Código HTTP 400: solicitud incorrecta
+            echo json_encode(['error' => 'ID de pedido no especificado']); // Mensaje de error en JSON
+            return; // Salimos del método
+        }
+
+        // Convertimos el valor recibido a entero para evitar problemas de tipo
+        $claped = (int)$_POST['CLAPED'];
+
+        // Creamos una instancia del modelo Pedido
+        $pedidoModel = new Pedido();
+
+        // Obtenemos las líneas del pedido que corresponden al CLAPED recibido
+        $lineas = $pedidoModel->getLineasPedido($claped);
+
+        // Indicamos que la respuesta será JSON
+        header('Content-Type: application/json');
+
+        // Devolvemos las líneas en formato JSON para que el frontend las reciba
+        echo json_encode($lineas);
+    }
+
+    // Método para crear un nuevo Articulo (usualmente al enviar un formulario)
     public function store() {
         session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
 
@@ -19,8 +45,7 @@ class UsuarioController {
             $passwd = $_POST['passwd'] ?? '';
             $alias = $_POST['alias'] ?? '';
             $telefono = $_POST['telefono'] ?? '';
-            date_default_timezone_set('Europe/Madrid');
-            $fecha_creacion = date('Y-m-d');
+            $fecha_creacion = date('Y-m-d'); // Fecha actual en formato YYYY-MM-DD
             $departamento_id = $_POST['departamento_id'] ?? '';
 
             // Verifica que todos los campos requeridos estén completos
@@ -44,12 +69,12 @@ class UsuarioController {
 
             // Mensaje de éxito y redirección
             $_SESSION['success'] = 'Usuario creado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios');
+            header('Location: ' . BASE_URL . '/usuarios_crear');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios');
+        header('Location: ' . BASE_URL . '/usuarios_crear');
         exit;
     }
 

@@ -57,18 +57,13 @@
   </div>
 
   <div class="form-group">
-    <label for="fecha_creacion">Fecha de creación</label>
-    <input 
-      type="date" 
-      class="form-control" 
-      id="fecha_creacion" 
-      name="fecha_creacion"
-    >
-  </div>
-
-  <div class="form-group">
     <label for="departamento_id">Departamento</label>
-    <input type="text" class="form-control" id="departamento_id" name="departamento_id" placeholder="ID del departamento">
+				<select name="departamento_id" id="departamento_id" class="form-select" required>
+					<option value="">Seleccionar...</option>
+					<?php foreach ($departamentos as $departamento): ?>
+						<option value="<?= $departamento['id'] ?>"><?= htmlspecialchars($departamento['nombre']) ?></option>
+					<?php endforeach; ?>
+				</select>
   </div>
 
   <button type="submit" class="btn btn-primary">Enviar</button>

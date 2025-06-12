@@ -1,4 +1,9 @@
 <?php
+
+// Crea un objeto del modelo de departamentos
+$departamentoModel = new Departamento();
+$departamentos = $departamentoModel->getAllDepartamentos(); //Llama a la funcion para mostrar todos los departamentos
+
 // Define la ruta al archivo de contenido específico de la vista actual
 $view = __DIR__ . '/usuarios_crear_content.php';
 

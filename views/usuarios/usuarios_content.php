@@ -23,10 +23,7 @@
           <td><?= htmlspecialchars($usuario['fecha_creacion']) ?></td>
           <td><?= htmlspecialchars($usuario['departamento_id']) ?></td>
           <td>
-            <form method="post" action="<?= BASE_URL ?>/usuarios_eliminar" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
-              <input type="hidden" name="id" value="<?= htmlspecialchars($usuario['id']) ?>">
-              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-            </form>
+              <button type="button" class="btn btn-sm btn-danger btn-eliminar" data-id="<?= $usuario['id'] ?>">Eliminar</button>
           </td>
         </tr>
       <?php endforeach; ?>
@@ -43,3 +40,8 @@
     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
   </button>
 </form>
+
+<!-- Modal eliminar usuario -->
+<?php include_once __DIR__ . '../../components/modals/usuarios/usuarios_eliminar_modal.php'; ?>
+
+<script src="./public/js/usuarios/usuarios_eliminar.js"></script>

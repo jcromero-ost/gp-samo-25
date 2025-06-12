@@ -21,7 +21,7 @@ class Cliente {
         });
         return $clientes;
     }
-
+/*
     public function create($data){
         return $this->reader->insertRecord($data);
     }
@@ -61,10 +61,9 @@ public function getClienteVacio() {
 
     return $cliente;
 }
-
+*/
 
     // Método para crear un nuevo usuario
-    /*
     public function create($data) {
         $clacli = strtoupper(substr($data['nombre'] ?? 'CLI', 0, 3)) . rand(1000, 9999); // ej: CLI4892
         $ultimoCodigo = $this->getLastCodigo(); // Debes implementar este método
@@ -72,19 +71,19 @@ public function getClienteVacio() {
 
         $record = [
             'CLACLI' => (int)rand(1, 9999),
-            'CODIGO' => $codigo,
-            'NOMBRE' => $data['nombre'] ?? '',
-            'DIRECCION' => $data['direccion'] ?? '',
-            'LOCALIDAD' => $data['localidad'] ?? '',
-            'PROVINCIA' => $data['provincia'] ?? '',
-            'POSTAL' => $data['postal'] ?? '',
-            'PAIS' => $data['pais'] ?? '',
-            'TELEFONO' => $data['telefono'] ?? '',
+            'CODIGO' => $data['CODIGO'] ?? '',
+            'NOMBRE' => $data['NOMBRE'] ?? '',
+            'DIRECCION' => $data['DIRECCION'] ?? '',
+            'LOCALIDAD' => $data['LOCALIDAD'] ?? '',
+            'PROVINCIA' => $data['PROVINCIA'] ?? '',
+            'POSTAL' => $data['POSTAL'] ?? '',
+            'PAIS' => $data['PAIS'] ?? '',
+            'TELEFONO' => $data['TELEFONO'] ?? '',
             'FAX' => '',
             'EMAIL' => '',
             'CONTACTO' => '',
-            'FALTA' => date('Y-m-d'), // campo tipo fecha
-            'CIF' => '',
+            'FALTA' => date('Ymd'), // campo tipo fecha
+            'CIF' => '24456567L',
             'NOMBAN' => '',
             'DIRBAN' => '',
             'LOCBAN' => '',
@@ -101,8 +100,8 @@ public function getClienteVacio() {
             'DTOPP' => 0,
             'DTOCIAL' => 0,
             'NCTACON' => 0,
-            'RIESGO' => 0,
-            'REGIMENIVA' => 0,
+            'RIESGO' => 900000,
+            'REGIMENIVA' => 1,
             'DPAGO1' => 0,
             'DPAGO2' => 0,
             'CONTACT1' => '',
@@ -120,8 +119,8 @@ public function getClienteVacio() {
             'NOTAS' => '',
             'PORTES' => 0,
             'PORTESDESD' => 0,
-            'AGRUPALB' => false,
-            'NOALB' => false,
+            'AGRUPALB' => 'VERDADERO',
+            'NOALB' => 'VERDADERO',
             'CLAAGE' => 0,
             'CLAFPA' => 0,
             'CLATIP' => 0,
@@ -134,38 +133,38 @@ public function getClienteVacio() {
             'GPSLAT' => 0,
             'GPSLON' => 0,
             'EMAILFE' => '',
-            'CONSUMIDOR' => false,
+            'CONSUMIDOR' => 'FALSO',
             'NOMUSER' => '',
             'PASSWORD' => '',
             'BIC' => '',
             'REFUNICTO' => '',
-            'FECHACTO' => date('Y-m-d'),
-            'FIRSTRCBO' => false,
-            'ADMPUBLI' => false,
+            'FECHACTO' => '',
+            'FIRSTRCBO' => 'VERDADERO',
+            'ADMPUBLI' => 'FALSO',
             'CLAADMON' => 0,
-            'NOVALESTPV' => false,
-            'ALTAONLINE' => false,
-            'BAJAONLINE' => false,
-            'MSG_ONLINE' => false,
-            'EMAILCONF' => false,
+            'NOVALESTPV' => 'FALSO',
+            'ALTAONLINE' => 'FALSO',
+            'BAJAONLINE' => 'FALSO',
+            'MSG_ONLINE' => '',
+            'EMAILCONF' => 'FALSO',
             'NOMCNT' => '',
             'APELLCNT' => '',
-            'RESETCOUNT' => 0,
-            'RESETDATE' => date('Y-m-d H:i:s'), // tipo T = DateTime
-            'CLAPAIS' => 0,
-            'CLAUN' => 0,
-            'NOPUBLI' => false,
+            'RESETCOUNT' => '',
+            'RESETDATE' => '',
+            'CLAPAIS' => 72,
+            'CLAUN' => 2988,
+            'NOPUBLI' => 'FALSO',
             'CODREGIVA' => '',
-            'FTIPFACVEN' => false,
-            'TIPOCIF' => 0,
-            'CODPAIS' => '',
-            'TIPOCOBRO' => 0,
-            'APLITARTPV' => false,
-            'BAJA' => false,
+            'FTIPFACVEN' => 'FALSO',
+            'TIPOCIF' => 1,
+            'CODPAIS' => 'ES',
+            'TIPOCOBRO' => 1,
+            'APLITARTPV' => '',
+            'BAJA' => 'FALSO',
             'WEB' => '',
             'OBSERVA' => '',
             'REGIMENIVB' => 0,
-            'PARTIDA' => 0,
+            'PARTIDA' => 1334,
             'CLAFPAB' => 0,
             'PAGO1B' => 0,
             'PAGO2B' => 0,
@@ -174,11 +173,10 @@ public function getClienteVacio() {
             'DPAGO1B' => 0,
             'DPAGO2B' => 0,
             'CPOSTALEX' => '',
-            'ENMAIL' => false
+            'ENMAIL' => 'FALSO'
         ];
             return $this->reader->insertRecord($record);
     }
-            */
 
     public function getLastCodigo()
     {

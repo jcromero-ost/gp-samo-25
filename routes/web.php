@@ -70,12 +70,17 @@ $router->get('/clientes_crear', function () {
 $router->post('/clientes_crear', 'ClienteController@store'); //Ruta para crear un cliente
 $router->post('/clientes_eliminar', 'ClienteController@delete'); //Ruta para eliminar un cliente
 
-
-
 // Ruta para la página de lista de articulos
 $router->get('/articulos', function () {
     // Carga la vista de articulos
     require __DIR__ . '/../views/articulos/articulos.php';
 });
+
+// Ruta para la página de lista de pedidos
+$router->get('/pedidos', function () {
+    // Carga la vista de pedidos
+    require __DIR__ . '/../views/pedidos/pedidos.php';
+});
+$router->post('/pedidos_ver_lineas', 'PedidoController@ver_lineas');
 
 

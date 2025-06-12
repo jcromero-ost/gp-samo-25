@@ -2,7 +2,7 @@
 require_once 'models/Database.php';
 
 try {
-    $ruta = "C:\\SAMO\\ClasGes6SP26\\DATOS\\clientes.dbf";
+    $ruta = "C:\\SAMO\\ClasGes6SP26\\DATOS\\pedido.dbf";
     $reader = new DBFReader($ruta);
 
     echo "<h3>Estructura del archivo DBF:</h3><pre>";

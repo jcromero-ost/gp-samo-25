@@ -1,32 +1,50 @@
 <form action="<?= BASE_URL ?>/clientes_crear" method="POST">
-    <label>Código:</label>
-    <input type="text" name="CODIGO" required value="<?= htmlspecialchars($ultimo_codigo ?? '') ?>"><br>
+    <div class="form-group">
+        <label>Código</label>
+        <input class="form-control" type="text" name="CODIGO" required value="<?= htmlspecialchars($ultimo_codigo ?? '') ?>" readonly>
+    </div>
 
-    <label>Nombre:</label>
-    <input type="text" name="NOMBRE" required><br>
+    <div class="form-group">
+        <label>Nombre</label>
+        <input class="form-control" type="text" name="NOMBRE" required>
+    </div>
 
-    <label>Dirección:</label>
-    <input type="text" name="DIRECCION"><br>
+    <div class="form-group">
+        <label>Dirección</label>
+        <input class="form-control" type="text" name="DIRECCION">
+    </div>
 
-    <label>Localidad:</label>
-    <input type="text" name="LOCALIDAD"><br>
+    <div class="form-group">
+        <label>Localidad</label>
+        <input class="form-control" type="text" name="LOCALIDAD">
+    </div>
 
-    <label>Provincia:</label>
-    <input type="text" name="PROVINCIA"><br>
+    <div class="form-group">
+        <label>Provincia:</label>
+        <input class="form-control" type="text" name="PROVINCIA">
+    </div>
 
-    <label>Postal:</label>
-    <input type="text" name="POSTAL"><br>
+    <div class="form-group">
+        <label>Postal</label>
+        <input class="form-control" type="text" name="POSTAL">
+    </div>
 
-    <label>País:</label>
-    <input type="text" name="PAIS"><br>
+    <div class="form-group">
+        <label>País</label>
+        <input class="form-control" type="text" name="PAIS">
+    </div>
 
-    <label>Teléfono:</label>
-    <input type="text" name="TELEFONO"><br>
+    <div class="form-group">
+        <label>Teléfono</label>
+        <input class="form-control" type="text" name="TELEFONO">
+    </div>
 
-    <label>Email:</label>
-    <input type="email" name="EMAIL"><br>
+    <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" type="email" name="EMAIL">
+    </div>
 
     <!-- Agrega más campos según lo necesites -->
 
-    <button type="submit">Guardar</button>
+    <button type="submit" class="btn btn-primary">Guardar</button>
 </form>
