@@ -74,4 +74,4 @@
 <?php include_once __DIR__ . '../../components/modals/pedidos/pedidos_ver_lineas_modal.php'; ?>
 
 <script src="./public/js/pedidos/pedidos_ver_lineas.js"></script>
-<script src="./public/js/pedidos/pedidos_paginacion_ajax.js"></script>  <!-- Nuevo archivo JS para paginación -->
+<script src="./public/js/pedidos/pedidos_paginacion.js"></script>  <!-- Nuevo archivo JS para paginación -->

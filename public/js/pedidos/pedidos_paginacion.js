@@ -1,15 +1,18 @@
+// Espera a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
+  
   // Función para cargar los pedidos vía AJAX
   function cargarPedidosPagina(page = 1) {
-    const url = `./pedidos?page=${page}`;
+    const url = `./pedidos?page=${page}`; // URL con número de página
 
+    // Se realiza la petición fetch a la URL
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(res => res.json())
+      .then(res => res.json()) // Se espera respuesta JSON
       .then(data => {
         const container = document.getElementById('pedidos-container');
-        if (!container) return;
+        if (!container) return; // Si no existe el contenedor, termina
 
-        // Construir HTML tabla y paginación (puedes extraerlo a una función si quieres)
+        // Construcción del HTML de la tabla y paginación
         let html = `
         <table class="table table-bordered table-striped">
           <thead class="thead-dark">
@@ -22,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </thead>
           <tbody>`;
 
+        // Por cada pedido recibido, se construye una fila de la tabla
         data.pedidos.forEach((pedido, i) => {
           html += `
             <tr>
@@ -55,8 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>`;
         });
 
-        html += `</tbody></table>`;
+        html += `</tbody></table>`; // Cierre del tbody y tabla
 
+        // Agrega la paginación
         html += `
         <nav aria-label="Paginación pedidos">
           <ul class="pagination">
@@ -64,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ? `<li class="page-item"><a href="#" class="page-link" data-page="${data.page - 1}">Anterior</a></li>`
               : `<li class="page-item disabled"><span class="page-link">Anterior</span></li>`}
 
-                <li class="page-item disabled"><span class="page-link">Página ${data.page} de ${data.totalPaginas}</span></li>
+            <li class="page-item disabled"><span class="page-link">Página ${data.page} de ${data.totalPaginas}</span></li>
 
             ${data.page < data.totalPaginas
               ? `<li class="page-item"><a href="#" class="page-link" data-page="${data.page + 1}">Siguiente</a></li>`
@@ -72,42 +77,44 @@ document.addEventListener('DOMContentLoaded', () => {
           </ul>
         </nav>`;
 
-        container.innerHTML = html;
+        container.innerHTML = html; // Inserta el contenido HTML en el contenedor
 
-        // Resetea el estado de carga y limpia contenido de las líneas para que se puedan cargar nuevas al expandir
-container.querySelectorAll('.lineas-content').forEach(div => {
-  div.dataset.loaded = 'false';
-  div.dataset.page = '1';      // opcional, si manejas página
-  div.innerHTML = '';          // limpia contenido previo
-});
-
-        // Re-inicializar eventos de colapsables y botones después de cargar nuevo contenido
+        // Re-inicializa eventos colapsables y de botones después de cargar nuevo contenido
         inicializarEventosCollapse();
         inicializarToggleButtons();
+
+        // Resetea el estado de carga y limpia el contenido de las líneas para que se puedan volver a cargar al expandir
+        container.querySelectorAll('.lineas-content').forEach(div => {
+          div.dataset.loaded = 'false'; // marca como no cargado
+          div.dataset.page = '1';       // opcional, para paginar líneas
+          div.innerHTML = '';           // limpia el contenido previo
+        });
       })
       .catch(() => {
-        alert('Error al cargar pedidos.');
+        alert('Error al cargar pedidos.'); // Muestra alerta si falla la carga
       });
   }
 
-  // Inicializa evento collapse (igual que en tu JS de líneas)
+  // Inicializa los eventos de colapso para las filas de líneas
   function inicializarEventosCollapse() {
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
+      // Evita adjuntar múltiples veces
       if (collapseEl.dataset.eventsAttached === 'true') return;
 
+      // Evento cuando se expande el colapso
       collapseEl.addEventListener('shown.bs.collapse', () => {
         const container = collapseEl.querySelector('.lineas-content');
-        if (container.dataset.loaded === 'true') return;
+        if (container.dataset.loaded === 'true') return; // Si ya fue cargado, no hace nada
 
         const claped = container.dataset.claped;
-        cargarLineas(claped, container, 1, 5);
+        cargarLineas(claped, container, 1, 5); // Carga las líneas del pedido
       });
 
-      collapseEl.dataset.eventsAttached = 'true';
+      collapseEl.dataset.eventsAttached = 'true'; // Marca como con evento adjunto
     });
   }
 
-  // Inicializa los botones mostrar/ocultar líneas
+  // Inicializa los botones de mostrar/ocultar líneas
   function inicializarToggleButtons() {
     const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
 
@@ -119,11 +126,13 @@ container.querySelectorAll('.lineas-content').forEach(div => {
         const showBtn = row.querySelector('.show-btn');
         const hideBtn = row.querySelector('.hide-btn');
 
+        // Evento al colapsar (ocultar)
         target.addEventListener('hidden.bs.collapse', () => {
           showBtn.classList.remove('d-none');
           hideBtn.classList.add('d-none');
         }, { once: true });
 
+        // Evento al expandir (mostrar)
         target.addEventListener('shown.bs.collapse', () => {
           showBtn.classList.add('d-none');
           hideBtn.classList.remove('d-none');
@@ -131,22 +140,23 @@ container.querySelectorAll('.lineas-content').forEach(div => {
       });
     });
   }
-  
 
-  // Importante: asumo que ya tienes esta función cargarLineas(claped, container, page, limit) definida en pedidos_ver_lineas.js
-  // Si no, tienes que incluirla aquí o hacer que este archivo se cargue después de ese JS
+  // IMPORTANTE:
+  // Se asume que la función cargarLineas(claped, container, page, limit)
+  // está definida en otro archivo (por ejemplo: pedidos_ver_lineas.js)
+  // Si no está definida, se debe incluir o importar ese JS antes que este archivo
 
-  // Capturamos clicks en la paginación
+  // Captura los clics en los enlaces de paginación
   document.getElementById('pedidos-container').addEventListener('click', e => {
     if (e.target.matches('.page-link[data-page]')) {
-      e.preventDefault();
+      e.preventDefault(); // Previene navegación por defecto
       const page = parseInt(e.target.getAttribute('data-page'), 10);
       if (page) {
-        cargarPedidosPagina(page);
+        cargarPedidosPagina(page); // Carga la página seleccionada
       }
     }
   });
 
-  // Carga la primera página al inicio
+  // Carga la primera página de pedidos al iniciar
   cargarPedidosPagina(1);
 });

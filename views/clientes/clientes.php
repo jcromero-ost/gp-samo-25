@@ -1,36 +1,43 @@
 <?php
 
+// Incluye el modelo Cliente, que contiene la lógica para acceder a los datos de clientes
 require_once __DIR__ . '/../../models/Cliente.php';
 
-// Crea un objeto del modelo
+// Crea una instancia del modelo Cliente
 $clienteModel = new Cliente();
 
-// Obtiene el número de página actual desde la URL (por ejemplo, ?page=2). Si no se especifica, usa la página 1 por defecto. Además, se asegura de que el número sea al menos 1 (no permite 0 o negativos).
+// Obtiene el número de página desde la URL (GET), por defecto 1 si no se especifica
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
-// Define cuántos registros mostrar por página.
+// Define cuántos registros se mostrarán por página
 $limit = 10;
 
-// Calcula el índice del primer registro que debe mostrarse en esta página. Por ejemplo, si estás en la página 3 y hay 10 por página, el offset es 20 (es decir, empieza en el registro 21).
+// Calcula el offset para la consulta SQL (desde qué registro comenzar)
 $offset = ($page - 1) * $limit;
 
-// Obtiene los registros de clientes desde el modelo, pasando el offset y el límite. Esto asegura que solo se obtengan los registros necesarios para esta página.
+// Obtiene los clientes de la base de datos usando el modelo, con paginación
 $clientes = $clienteModel->getAllClientes($offset, $limit);
 
-// Obtiene el total de registros disponibles en el archivo DBF (sin filtrar).
-$totalRegistros = $clienteModel->getTotal(); // Internamente llama a $reader->getRecordCount()
+// Obtiene el total de registros disponibles
+$totalRegistros = $clienteModel->getTotal();
 
-// Calcula cuántas páginas habrá en total, dividiendo el total de registros entre el límite por página. La función ceil redondea hacia arriba para cubrir registros restantes (por ejemplo, si hay 101 registros, habrá 11 páginas).
-$totalPaginas = ceil($totalRegistros / $limit);
+// Calcula cuántas páginas hay en total, como mínimo 1
+$totalPaginas = max(1, ceil($totalRegistros / $limit));
 
-
-
-
-
-
-
-
-
+// Si la petición fue hecha por AJAX (fetch o XMLHttpRequest)
+if (
+    !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+) {
+    // Devuelve la respuesta en formato JSON
+    header('Content-Type: application/json');
+    echo json_encode([
+        'clientes' => $clientes,         // Lista de clientes paginados
+        'page' => $page,               // Página actual
+        'totalPaginas' => $totalPaginas, // Total de páginas
+    ]);
+    exit; // Termina la ejecución del script para no cargar la vista completa
+}
 
 /*
 $registroValido = null;
