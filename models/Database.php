@@ -41,10 +41,58 @@ class DBFReader {
         fseek($this->file, $this->headerSize); // Posiciona el puntero en el inicio de los registros de datos
     }
 
-    //Coge los ultimos 10 registros (temporal)
-    public function getRecords($limit = 10) {
+    // Mas rapido
+    public function getRecords($offset = 0, $limit = 100) {
         $records = [];
+        $start = $this->headerSize + ($offset * $this->recordSize);
 
+        fseek($this->file, $start);
+
+        $max = min($limit, $this->recordCount - $offset);
+
+        for ($i = 0; $i < $max; $i++) {
+            $deleted = fread($this->file, 1);
+            if ($deleted === '*') {
+                fseek($this->file, $this->recordSize - 1, SEEK_CUR);
+                continue;
+            }
+
+            $rawRecord = fread($this->file, $this->recordSize - 1);
+            $record = [];
+            $pos = 0;
+
+            foreach ($this->fields as $field) {
+                $raw = substr($rawRecord, $pos, $field['length']);
+                $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252'));
+                $pos += $field['length'];
+            }
+
+            $records[] = $record;
+        }
+
+        return $records;
+    }
+
+
+    public function getRecordCount() {
+        return $this->recordCount;
+    }
+
+    public function getFilteredRecords($campo, $valor) {
+        $results = [];
+
+        // Verifica si el campo existe
+        $campoEncontrado = false;
+        foreach ($this->fields as $field) {
+            if ($field['name'] === $campo) {
+                $campoEncontrado = true;
+                break;
+            }
+        }
+        if (!$campoEncontrado) return [];
+
+        // Reinicia el puntero al inicio de los registros
+        fseek($this->file, $this->headerSize);
         for ($i = 0; $i < $this->recordCount; $i++) {
             $deleted = fread($this->file, 1);
             if ($deleted === '*') {
@@ -52,19 +100,23 @@ class DBFReader {
                 continue;
             }
 
+            $rawRecord = fread($this->file, $this->recordSize - 1);
             $record = [];
+            $pos = 0;
+
             foreach ($this->fields as $field) {
-                $raw = fread($this->file, $field['length']);
+                $raw = substr($rawRecord, $pos, $field['length']);
                 $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252'));
+                $pos += $field['length'];
             }
 
-            $records[] = $record;
+            if ($record[$campo] == $valor) {
+                $results[] = $record;
+            }
         }
 
-        // Devuelve solo los últimos $limit registros
-        return array_slice($records, -$limit);
+        return $results;
     }
-
 
     // Método público para obtener todos los registros del archivo DBF
     /*

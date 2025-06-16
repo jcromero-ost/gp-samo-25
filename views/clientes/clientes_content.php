@@ -43,6 +43,15 @@
     <?php endif; ?>
   </tbody>
 </table>
+<?php if ($page > 1): ?>
+  <a href="?page=<?= $page - 1 ?>">Anterior</a>
+<?php endif; ?>
+
+<span>Página <?= $page ?> de <?= $totalPaginas ?></span>
+
+<?php if ($page < $totalPaginas): ?>
+  <a href="?page=<?= $page + 1 ?>">Siguiente</a>
+<?php endif; ?>
 
 <form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
   <button type="submit" class="btn btn-danger">

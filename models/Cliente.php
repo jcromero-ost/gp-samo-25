@@ -12,14 +12,19 @@ class Cliente {
         $this->reader = new DBFReader($this->ruta);
     }
 
-    public function getAllClientes() {
-        $clientes = $this->reader->getRecords();
+    public function getAllClientes($offset = 0, $limit = 10) {
+        $clientes = $this->reader->getRecords($offset, $limit);
 
-        // Ordenar alfabéticamente por el campo 'nombre' (ajusta el nombre del campo si es diferente)
+        // Ordenar por 'FALTA' descendente si el campo existe (puede ser una fecha)
         usort($clientes, function ($a, $b) {
             return strcmp($b['FALTA'], $a['FALTA']);
         });
+
         return $clientes;
+    }
+
+    public function getTotal() {
+        return $this->reader->getRecordCount();
     }
 /*
     public function create($data){

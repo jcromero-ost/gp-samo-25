@@ -4,32 +4,48 @@
   <thead class="thead-dark">
     <tr>
       <th>CLAPED</th>
-      <th>CLAPEMP</th>
+      <th>CLAEMP</th>
       <th>NOMBRE CLIENTE</th>
       <th>LINEAS</th>
     </tr>
   </thead>
   <tbody>
-    <?php if (!empty($pedidos)): ?>
-      <?php foreach ($pedidos as $pedido): ?>
-        <tr>
-        <td><?= htmlspecialchars($pedido['CLAPED'] ?? '') ?></td>
-        <td><?= htmlspecialchars($pedido['CLAEMP'] ?? '') ?></td>
-          <td><?= htmlspecialchars($pedido['NOMCLI']) ?></td>
-          <td>
-            <button type="button" class="btn btn-sm btn-info btn-ver-lineas" data-id="<?= $pedido['CLAPED'] ?>" data-bs-toggle="modal" data-bs-target="#modal_ver_lineas_pedido">
-              Ver Lineas
-            </button>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-    <?php else: ?>
+    <?php foreach ($pedidos as $i => $pedido): ?>
       <tr>
-        <td colspan="7" class="text-center">No hay pedidos</td>
+        <td><?= htmlspecialchars($pedido['CLAPED']) ?></td>
+        <td><?= htmlspecialchars($pedido['CLAEMP']) ?></td>
+        <td><?= htmlspecialchars($pedido['NOMCLI']) ?></td>
+        <td>
+          <button class="btn btn-sm btn-info toggle-lines-btn" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseLines<?= $i ?>"
+            aria-expanded="false"
+            aria-controls="collapseLines<?= $i ?>">
+            Ver líneas
+          </button>
+        </td>
       </tr>
-    <?php endif; ?>
+      <tr class="collapse" id="collapseLines<?= $i ?>">
+        <td colspan="4">
+          <div class="p-2">
+            <div class="mt-2 lineas-content" data-claped="<?= htmlspecialchars($pedido['CLAPED']) ?>"></div>
+          </div>
+        </td>
+      </tr>
+    <?php endforeach; ?>
   </tbody>
 </table>
+
+
+<?php if ($page > 1): ?>
+  <a href="?page=<?= $page - 1 ?>">Anterior</a>
+<?php endif; ?>
+
+<span>Página <?= $page ?> de <?= $totalPaginas ?></span>
+
+<?php if ($page < $totalPaginas): ?>
+  <a href="?page=<?= $page + 1 ?>">Siguiente</a>
+<?php endif; ?>
 
 <form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
   <button type="submit" class="btn btn-danger">
@@ -41,3 +57,5 @@
 <?php include_once __DIR__ . '../../components/modals/pedidos/pedidos_ver_lineas_modal.php'; ?>
 
 <script src="./public/js/pedidos/pedidos_ver_lineas.js"></script>
+
+

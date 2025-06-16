@@ -11,13 +11,19 @@ class Articulo {
         $this->reader = new DBFReader($ruta);
     }
 
-    public function getAllArticulos() {
-        $articulos = $this->reader->getRecords();
-        // Ordenar alfabéticamente por el campo 'nombre'
+    public function getAllArticulos($offset = 0, $limit = 10) {
+        $articulos = $this->reader->getRecords($offset, $limit);
+
+        // Ordenar por 'FALTA' descendente si el campo existe (puede ser una fecha)
         usort($articulos, function ($a, $b) {
-            return strcmp($a['CODIGO'], $b['CODIGO']);
+            return strcmp($b['CODIGO'], $a['CODIGO']);
         });
+
         return $articulos;
+    }
+
+    public function getTotal() {
+        return $this->reader->getRecordCount();
     }
 
     // Método para crear un nuevo usuario

@@ -12,30 +12,27 @@ class Pedido {
     }
 
     // Método que devuelve todos los pedidos
-    public function getAllPedidos() {
-        $pedidos = $this->reader->getRecords();
-        // Ordenar alfabéticamente por el campo 'numero'
+    public function getAllPedidos($offset = 0, $limit = 10) {
+        $pedidos = $this->reader->getRecords($offset, $limit);
+
+        // Ordenar por 'NUMERO' descendente si el campo existe (puede ser una fecha)
         usort($pedidos, function ($a, $b) {
-            return strcmp($a['NUMERO'], $b['NUMERO']);
+            return (int)$b['NUMERO'] <=> (int)$a['NUMERO'];
         });
+
         return $pedidos;
+    }
+
+    public function getTotal() {
+        return $this->reader->getRecordCount();
     }
 
     // Método que devuelve todos las lineas de un pedido
     public function getLineasPedido($claped) {
         $rutaLineas = "C:\\SAMO\\ClasGes6SP26\\DATOS\\pedidol.DBF";
         $readerLineas = new DBFReader($rutaLineas);
-        $lineas = [];
-
-        while ($linea = $readerLineas->nextRecord()) {
-            if ((int)$linea['CLAPED'] === (int)$claped) {
-                $lineas[] = $linea;
-            }
-        }
-
-        return $lineas;
+        return $readerLineas->getFilteredRecords('CLAPED', $claped);
     }
-
 
     // Método para crear un nuevo usuario
     public function create($data) {
