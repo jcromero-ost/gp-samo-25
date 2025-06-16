@@ -81,6 +81,6 @@ $router->get('/pedidos', function () {
     // Carga la vista de pedidos
     require __DIR__ . '/../views/pedidos/pedidos.php';
 });
-$router->post('/pedidos_ver_lineas', 'PedidoController@ver_lineas');
+$router->post('/pedidos_ver_lineas', 'LineasPedidoController@ver_lineas');
 
 

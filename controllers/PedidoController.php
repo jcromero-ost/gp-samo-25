@@ -10,28 +10,28 @@ class PedidoController {
     // Método para visualizar las lineas de un pedido
     public function ver_lineas()
     {
-        // Verificamos que el ID del pedido (CLAPED) venga en la solicitud POST
         if (!isset($_POST['CLAPED'])) {
-            http_response_code(400); // Código HTTP 400: solicitud incorrecta
-            echo json_encode(['error' => 'ID de pedido no especificado']); // Mensaje de error en JSON
-            return; // Salimos del método
+            http_response_code(400);
+            echo json_encode(['error' => 'ID de pedido no especificado']);
+            return;
         }
 
-        // Convertimos el valor recibido a entero para evitar problemas de tipo
         $claped = (int)$_POST['CLAPED'];
+        $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
+        $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 10;
 
-        // Creamos una instancia del modelo Pedido
         $pedidoModel = new Pedido();
 
-        // Obtenemos las líneas del pedido que corresponden al CLAPED recibido
-        $lineas = $pedidoModel->getLineasPedido($claped);
+        $lineas = $pedidoModel->getLineasPedido($claped, $offset, $limit);
+        $totalLineas = $pedidoModel->getTotalLineasPedido($claped); // necesitas crear este método
 
-        // Indicamos que la respuesta será JSON
         header('Content-Type: application/json');
-
-        // Devolvemos las líneas en formato JSON para que el frontend las reciba
-        echo json_encode($lineas);
+        echo json_encode([
+            'data' => $lineas,
+            'total' => $totalLineas
+        ]);
     }
+
 
     // Método para crear un nuevo Articulo (usualmente al enviar un formulario)
     public function store() {

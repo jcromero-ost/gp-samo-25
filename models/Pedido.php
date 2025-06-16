@@ -27,13 +27,6 @@ class Pedido {
         return $this->reader->getRecordCount();
     }
 
-    // Método que devuelve todos las lineas de un pedido
-    public function getLineasPedido($claped) {
-        $rutaLineas = "C:\\SAMO\\ClasGes6SP26\\DATOS\\pedidol.DBF";
-        $readerLineas = new DBFReader($rutaLineas);
-        return $readerLineas->getFilteredRecords('CLAPED', $claped);
-    }
-
     // Método para crear un nuevo usuario
     public function create($data) {
         // Hashea la contraseña usando el algoritmo por defecto de PHP (actualmente bcrypt)
