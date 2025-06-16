@@ -1,13 +1,13 @@
 <?php
-// Incluye el modelo Usuario, que contiene la lógica de acceso a la base de datos
-require_once __DIR__ . '/../models/Usuario.php';
+// Incluye el modelo Articulo, que contiene la lógica de acceso a la base de datos
+require_once __DIR__ . '/../models/Articulo.php';
 
 // Carga el archivo de configuración general del proyecto, útil para constantes como BASE_URL
 require_once __DIR__ . '/../config/config.php';
 
-class UsuarioController {
+class ArticuloController {
 
-    // Método para crear un nuevo usuario (usualmente al enviar un formulario)
+    // Método para crear un nuevo Articulo (usualmente al enviar un formulario)
     public function store() {
         session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
 
@@ -19,8 +19,7 @@ class UsuarioController {
             $passwd = $_POST['passwd'] ?? '';
             $alias = $_POST['alias'] ?? '';
             $telefono = $_POST['telefono'] ?? '';
-            date_default_timezone_set('Europe/Madrid');
-            $fecha_creacion = date('Y-m-d');
+            $fecha_creacion = date('Y-m-d'); // Fecha actual en formato YYYY-MM-DD
             $departamento_id = $_POST['departamento_id'] ?? '';
 
             // Verifica que todos los campos requeridos estén completos
@@ -44,12 +43,12 @@ class UsuarioController {
 
             // Mensaje de éxito y redirección
             $_SESSION['success'] = 'Usuario creado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios');
+            header('Location: ' . BASE_URL . '/usuarios_crear');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios');
+        header('Location: ' . BASE_URL . '/usuarios_crear');
         exit;
     }
 

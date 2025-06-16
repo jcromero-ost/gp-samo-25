@@ -48,7 +48,7 @@ class DepartamentoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
             $nombre = $_POST['nombre'] ?? '';
-            $id = $_SESSION['id'];
+            $id = $_POST['id'];
 
             // Verifica que todos los campos requeridos estén completos
             if (empty($nombre)) {
@@ -82,7 +82,7 @@ class DepartamentoController {
         // Solo procesa si la solicitud es por POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
-            $id = $_SESSION['id'];
+            $id = $_POST['id'];
 
             // Borra un departamento usando el modelo Departamento
             $departamento = new Departamento();
@@ -99,19 +99,5 @@ class DepartamentoController {
         // Si no es POST, redirige a la página de creación
         header('Location: ' . BASE_URL . '/departamentos');
         exit;
-    }
-}
-
-// Controlador centralizado según la acción enviada por POST
-if (isset($_POST['accion'])) {
-    $controller = new DepartamentoController();
-
-    switch ($_POST['accion']) {
-        case 'editar':
-            $controller->update();
-            break;
-        case 'eliminar':
-            $controller->delete();
-            break;
     }
 }

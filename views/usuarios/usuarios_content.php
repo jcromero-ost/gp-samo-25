@@ -9,6 +9,7 @@
       <th>Teléfono</th>
       <th>Fecha de creación</th>
       <th>Departamento ID</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -21,6 +22,9 @@
           <td><?= htmlspecialchars($usuario['telefono']) ?></td>
           <td><?= htmlspecialchars($usuario['fecha_creacion']) ?></td>
           <td><?= htmlspecialchars($usuario['departamento_id']) ?></td>
+          <td>
+              <button type="button" class="btn btn-sm btn-danger btn-eliminar" data-id="<?= $usuario['id'] ?>">Eliminar</button>
+          </td>
         </tr>
       <?php endforeach; ?>
     <?php else: ?>
@@ -36,3 +40,8 @@
     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
   </button>
 </form>
+
+<!-- Modal eliminar usuario -->
+<?php include_once __DIR__ . '../../components/modals/usuarios/usuarios_eliminar_modal.php'; ?>
+
+<script src="./public/js/usuarios/usuarios_eliminar.js"></script>

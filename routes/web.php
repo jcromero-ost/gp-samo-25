@@ -40,6 +40,7 @@ $router->get('/usuarios_crear', function () {
     require __DIR__ . '/../views/usuarios/usuarios_crear.php';
 });
 $router->post('/usuarios_crear', 'UsuarioController@store'); //Ruta para crear un usuario
+$router->post('/usuarios_eliminar', 'UsuarioController@delete'); //Ruta para eliminar un usuario
 
 // Ruta para la página de lista de usuarios
 $router->get('/usuarios', function () {
@@ -53,3 +54,33 @@ $router->get('/departamentos', function () {
     require __DIR__ . '/../views/departamentos/departamentos.php';
 });
 $router->post('/departamentos_crear', 'DepartamentoController@store'); //Ruta para crear un departamento
+$router->post('/departamentos_eliminar', 'DepartamentoController@delete'); //Ruta para eliminar un departamento
+
+// Ruta para la página de lista de clientes
+$router->get('/clientes', function () {
+    // Carga la vista de clientes
+    require __DIR__ . '/../views/clientes/clientes.php';
+});
+
+// Ruta para la página de crear clientes
+$router->get('/clientes_crear', function () {
+    // Carga la vista de clientes
+    require __DIR__ . '/../views/clientes/clientes_crear.php';
+});
+$router->post('/clientes_crear', 'ClienteController@store'); //Ruta para crear un cliente
+$router->post('/clientes_eliminar', 'ClienteController@delete'); //Ruta para eliminar un cliente
+
+// Ruta para la página de lista de articulos
+$router->get('/articulos', function () {
+    // Carga la vista de articulos
+    require __DIR__ . '/../views/articulos/articulos.php';
+});
+
+// Ruta para la página de lista de pedidos
+$router->get('/pedidos', function () {
+    // Carga la vista de pedidos
+    require __DIR__ . '/../views/pedidos/pedidos.php';
+});
+$router->post('/pedidos_ver_lineas', 'LineasPedidoController@ver_lineas');
+
+

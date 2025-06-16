@@ -19,6 +19,7 @@
     <tr>
       <th>ID</th>
       <th>Nombre</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -27,11 +28,14 @@
         <tr>
           <td><?= htmlspecialchars($departamento['id']) ?></td>
           <td><?= htmlspecialchars($departamento['nombre']) ?></td>
+          <td>
+              <button type="submit" class="btn btn-sm btn-danger btn-eliminar" data-id="<?= $departamento['id'] ?>">Eliminar</button>
+          </td>
         </tr>
       <?php endforeach; ?>
     <?php else: ?>
       <tr>
-        <td colspan="7" class="text-center">No hay usuarios registrados.</td>
+        <td colspan="7" class="text-center">No hay departamentos registrados.</td>
       </tr>
     <?php endif; ?>
   </tbody>
@@ -42,3 +46,8 @@
     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
   </button>
 </form>
+
+<!-- Modal eliminar departamento -->
+<?php include_once __DIR__ . '../../components/modals/departamentos/departamentos_eliminar_modal.php'; ?>
+
+<script src="./public/js/departamentos/departamentos_eliminar.js"></script>
