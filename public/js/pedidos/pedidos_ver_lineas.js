@@ -50,4 +50,29 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+  const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
+
+  toggleButtons.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const targetId = btn.getAttribute('data-bs-target');
+      const target = document.querySelector(targetId);
+      const row = btn.closest('tr');
+      const showBtn = row.querySelector('.show-btn');
+      const hideBtn = row.querySelector('.hide-btn');
+
+      const isCollapsed = target.classList.contains('show');
+
+      // Toggle visibility after Bootstrap collapse animation ends
+      target.addEventListener('hidden.bs.collapse', () => {
+        showBtn.classList.remove('d-none');
+        hideBtn.classList.add('d-none');
+      }, { once: true });
+
+      target.addEventListener('shown.bs.collapse', () => {
+        showBtn.classList.add('d-none');
+        hideBtn.classList.remove('d-none');
+      }, { once: true });
+    });
+  });
 });

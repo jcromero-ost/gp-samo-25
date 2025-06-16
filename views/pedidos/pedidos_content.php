@@ -16,12 +16,20 @@
         <td><?= htmlspecialchars($pedido['CLAEMP']) ?></td>
         <td><?= htmlspecialchars($pedido['NOMCLI']) ?></td>
         <td>
-          <button class="btn btn-sm btn-info toggle-lines-btn" type="button"
+          <button class="btn btn-sm btn-info toggle-lines-btn show-btn" type="button"
             data-bs-toggle="collapse"
             data-bs-target="#collapseLines<?= $i ?>"
             aria-expanded="false"
             aria-controls="collapseLines<?= $i ?>">
             Ver líneas
+          </button>
+
+          <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseLines<?= $i ?>"
+            aria-expanded="true"
+            aria-controls="collapseLines<?= $i ?>">
+            Ocultar líneas
           </button>
         </td>
       </tr>
