@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Función que carga las líneas de un pedido con paginación
-window.cargarLineas = function(claped, container, page = 1, limit = 5) {
+  window.cargarLineas = function(claped, container, page = 1, limit = 5) {
     const offset = (page - 1) * limit;
     container.dataset.page = page;
 
@@ -42,7 +41,6 @@ window.cargarLineas = function(claped, container, page = 1, limit = 5) {
 
       html += `</tbody></table>`;
 
-      // Paginación de líneas
       html += `<div class="d-flex justify-content-between align-items-center mt-2">`;
 
       if (page > 1) {
@@ -65,58 +63,23 @@ window.cargarLineas = function(claped, container, page = 1, limit = 5) {
       container.dataset.totalPages = totalPages;
       container.dataset.loaded = 'true';
 
-      // Eventos de paginación
       const prevBtn = container.querySelector('.prev-lineas');
       const nextBtn = container.querySelector('.next-lineas');
 
       if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-          cargarLineas(claped, container, page - 1, limit);
+          window.cargarLineas(claped, container, page - 1, limit);
         });
       }
 
       if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-          cargarLineas(claped, container, page + 1, limit);
+          window.cargarLineas(claped, container, page + 1, limit);
         });
       }
     })
     .catch(() => {
       container.innerHTML = `<p class="text-danger">Error al cargar líneas.</p>`;
     });
-  }
-
-  // Evento cuando se abre una fila colapsable
-  document.querySelectorAll('tr.collapse').forEach(collapseRow => {
-    collapseRow.addEventListener('shown.bs.collapse', () => {
-      const container = collapseRow.querySelector('.lineas-content');
-      if (container.dataset.loaded === 'true') return;
-
-      const claped = container.dataset.claped;
-      cargarLineas(claped, container, 1, 5);
-    });
-  });
-
-  // Botones mostrar/ocultar líneas
-  const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
-
-  toggleButtons.forEach(btn => {
-    btn.addEventListener('click', function () {
-      const targetId = btn.getAttribute('data-bs-target');
-      const target = document.querySelector(targetId);
-      const row = btn.closest('tr');
-      const showBtn = row.querySelector('.show-btn');
-      const hideBtn = row.querySelector('.hide-btn');
-
-      target.addEventListener('hidden.bs.collapse', () => {
-        showBtn.classList.remove('d-none');
-        hideBtn.classList.add('d-none');
-      }, { once: true });
-
-      target.addEventListener('shown.bs.collapse', () => {
-        showBtn.classList.add('d-none');
-        hideBtn.classList.remove('d-none');
-      }, { once: true });
-    });
-  });
+  };
 });
