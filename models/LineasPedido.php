@@ -11,19 +11,22 @@ class LineasPedido {
         $this->reader = new DBFReader($ruta);
     }
 
-public function getLineasPedido($claped, $offset = 0, $limit = 10) {
-    $claped = trim($claped);
-    $all = array_filter($this->reader->getRecords(), fn($r) => trim($r['CLAPED']) == $claped);
-    error_log('CLAPED en filtro: ' . $claped);
-    error_log("Listado CLAPED disponibles:");
-foreach ($this->reader->getRecords() as $r) {
-    error_log("'" . $r['CLAPED'] . "'");
-}
-    return array_slice(array_values($all), $offset, $limit);
-}
+    public function getLineasPedido($claped, $offset = 0, $limit = 10) {
+        $claped = trim($claped);
+        
+        // Obtén todos los registros y filtra solo los que coincidan
+        $filtered = array_values(array_filter(
+            $this->reader->getRecords(),
+            fn($r) => trim($r['CLAPED']) === $claped
+        ));
 
-public function getTotalLineasPedido($claped) {
-    $claped = trim($claped);
-    return count(array_filter($this->reader->getRecords(), fn($r) => trim($r['CLAPED']) === $claped));
-}
+        // Aplica paginación correctamente sobre el array ya filtrado
+        return $this->reader->getFilteredRecordsPaginado('CLAPED', $claped, $offset, $limit);
+    }
+
+
+    public function getTotalLineasPedido($claped) {
+        $claped = trim($claped);
+        return count(array_filter($this->reader->getRecords(), fn($r) => trim($r['CLAPED']) === $claped));
+    }
 }
