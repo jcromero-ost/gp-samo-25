@@ -7,9 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mostrar animación de carga dentro del contenedor mientras se obtienen datos
     container.innerHTML = `
-      <div class="d-flex align-items-center gap-2">
-        <img src="./public/images/maquina_coser.gif" width="30" alt="Cargando...">
-        <span class="text-muted">Cargando líneas...</span>
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <img src="./public/images/maquina_coser.gif" width="80" alt="Cargando...">
+          <span>Cargando líneas...</span>
+        </div>
       </div>`;
 
     // Realizar petición POST para obtener las líneas del pedido según CLAPED, offset y limit

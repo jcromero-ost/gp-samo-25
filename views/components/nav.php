@@ -19,7 +19,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
             <a class="nav-link <?= $currentPath === BASE_URL . '/departamentos' ? 'active' : '' ?>" href="<?= BASE_URL ?>/departamentos">Lista de departamentos</a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item d-none">
             <a class="nav-link <?= $currentPath === BASE_URL . '/clientes_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/clientes_crear">Crear clientes</a>
         </li>
 
