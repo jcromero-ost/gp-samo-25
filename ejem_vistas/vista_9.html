@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Timeline de Producción</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f7fc;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .accent {
+      color: #D92B42;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 2rem auto;
+      padding: 2rem 0;
+      max-width: 800px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background-color: #0D1C2E;
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      position: relative;
+      width: 50%;
+      padding: 1rem 2rem;
+      box-sizing: border-box;
+    }
+
+    .timeline-item.left {
+      left: 0;
+      text-align: right;
+    }
+
+    .timeline-item.right {
+      left: 50%;
+      text-align: left;
+    }
+
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      top: 1rem;
+      width: 16px;
+      height: 16px;
+      background-color: #D92B42;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline-item.left::after {
+      right: -8px;
+    }
+
+    .timeline-item.right::after {
+      left: -8px;
+    }
+
+    .timeline-card {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 8px;
+      }
+
+      .timeline-item {
+        width: 100%;
+        padding-left: 2rem;
+        padding-right: 1rem;
+      }
+
+      .timeline-item.right {
+        left: 0;
+      }
+
+      .timeline-item.left {
+        text-align: left;
+      }
+
+      .timeline-item::after {
+        left: -8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+  <h2 class="text-center mb-4 accent">Seguimiento de Orden de Fabricación</h2>
+  <p class="text-center text-muted">Orden N.º <strong>27000</strong> — Artículo: <em>CISNE CR/LG. BLLS VERTI.</em></p>
+
+  <div class="timeline">
+    <div class="timeline-item left">
+      <div class="timeline-card">
+        <h5 class="accent">Creación de orden</h5>
+        <p class="text-muted mb-1"><small>10 junio 2025 - 08:45</small></p>
+        <p>La orden fue creada por el departamento de planificación.</p>
+      </div>
+    </div>
+
+    <div class="timeline-item right">
+      <div class="timeline-card">
+        <h5 class="accent">Reserva de materia</h5>
+        <p class="text-muted mb-1"><small>11 junio 2025 - 11:00</small></p>
+        <p>Materia prima asignada y reservada automáticamente.</p>
+      </div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="timeline-card">
+        <h5 class="accent">En producción</h5>
+        <p class="text-muted mb-1"><small>14 junio 2025 - 09:00</small></p>
+        <p>Las prendas comenzaron el proceso de confección.</p>
+      </div>
+    </div>
+
+    <div class="timeline-item right">
+      <div class="timeline-card">
+        <h5 class="accent">Control de calidad</h5>
+        <p class="text-muted mb-1"><small>20 junio 2025 - 13:30</small></p>
+        <p>Las primeras unidades pasaron a revisión de calidad.</p>
+      </div>
+    </div>
+
+    <div class="timeline-item left">
+      <div class="timeline-card">
+        <h5 class="accent">Finalizada</h5>
+        <p class="text-muted mb-1"><small>22 junio 2025 - 17:45</small></p>
+        <p>La orden fue completada y cerrada correctamente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

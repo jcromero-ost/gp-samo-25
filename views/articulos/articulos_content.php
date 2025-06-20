@@ -50,11 +50,5 @@
   </nav>
 </div>
 
-<form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
-  <button type="submit" class="btn btn-danger">
-    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-  </button>
-</form>
-
 <script src="./public/js/articulos/articulos_paginacion.js"></script> 
 

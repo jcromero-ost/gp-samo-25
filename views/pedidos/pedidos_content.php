@@ -64,12 +64,6 @@
   </nav>
 </div>
 
-<form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
-  <button type="submit" class="btn btn-danger">
-    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-  </button>
-</form>
-
 <!-- Modal ver lineas -->
 <?php include_once __DIR__ . '../../components/modals/pedidos/pedidos_ver_lineas_modal.php'; ?>
 

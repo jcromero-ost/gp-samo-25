@@ -35,12 +35,6 @@
   </tbody>
 </table>
 
-<form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
-  <button type="submit" class="btn btn-danger">
-    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-  </button>
-</form>
-
 <!-- Modal eliminar usuario -->
 <?php include_once __DIR__ . '../../components/modals/usuarios/usuarios_eliminar_modal.php'; ?>
 

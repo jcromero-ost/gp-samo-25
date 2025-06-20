@@ -1,0 +1,50 @@
+:root {
+  /* Colores principales */
+  --color-primary: #9e0d0d;
+  --color-primary-transparent: rgba(177, 11, 11, 0.6); /* 60% opacidad */
+  --color-dark: #1B1B1B;
+
+  /* Colores secundarios */
+  --color-light-bg: #F4F4F4;
+  --color-text: #2C2C2C;
+  --color-border: #B0B0B0;
+
+  /* Estados */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-link: #007bff;
+}
+
+.navbar-custom {
+    background-color: var(--color-dark);
+}
+.navbar-brand, .nav-link, .navbar-text {
+    color: white !important;
+}
+
+.nav-item:hover > .nav-link {
+  background-color: var(--color-primary-transparent);
+  border-radius: 0.375rem;
+}
+
+.nav-item.dropdown.active > .nav-link.dropdown-toggle {
+  background-color: var(--color-primary-transparent);
+  color: white !important;
+  font-weight: bold;
+  border-radius: 0.375rem;
+}
+
+/* Estilo para el item activo del dropdown */
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* Íconos dentro del dropdown activo (opcional) */
+.nav-item.dropdown.active > .nav-link.dropdown-toggle i {
+  color: white;
+}
+
+
