@@ -75,6 +75,24 @@ $router->get('/articulos', function () {
     // Carga la vista de articulos
     require __DIR__ . '/../views/articulos/articulos.php';
 });
+$router->post('/articulos_ver_materias', 'MateriasPrimasController@ver_materias');
+$router->post('/articulos_sugerencias', 'ArticuloController@buscar');
+
+// Ruta para la página de crear un articulo
+$router->get('/articulos_crear', function () {
+    // Carga la vista de articulos
+    require __DIR__ . '/../views/articulos/articulos_crear.php';
+});
+$router->post('/articulos_crear', 'ArticuloController@store'); //Ruta para crear un articulo
+
+// Ruta para la página de crear escandallo
+$router->get('/escandallos_crear', function () {
+    // Carga la vista de articulos
+    require __DIR__ . '/../views/escandallos/escandallos_crear.php';
+});
+$router->post('/obtener_materias_por_codigo', 'EscandalloController@obtenerMateriasPorCodigoPadre'); //Ruta para visualizar los escandallos por codigo padre
+$router->post('/escandallos_crear', 'EscandalloController@store'); //Ruta para crear un escandallo
+
 
 // Ruta para la página de lista de pedidos
 $router->get('/pedidos', function () {

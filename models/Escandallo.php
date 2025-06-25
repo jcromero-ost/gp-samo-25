@@ -2,8 +2,8 @@
 // Incluye el archivo de conexión a la base de datos
 require_once __DIR__ . '/DatabaseLOCAL.php';
 
-// Definición de la clase Usuario, que se encarga de manejar operaciones sobre la tabla 'usuarios'
-class Usuario {
+// Definición de la clase Escandalllo, que se encarga de manejar operaciones sobre la tabla 'escandallos'
+class Escandallo {
     private $db; // Propiedad privada que almacenará la conexión a la base de datos
 
     // Constructor: se ejecuta al instanciar la clase
@@ -11,34 +11,63 @@ class Usuario {
         $this->db = DatabaseLOCAL::connect(); // Obtiene la conexión a la base de datos desde DatabaseLOCAL
     }
 
-    // Método para obtener todos los usuarios ordenados por nombre ascendentemente
-    public function getAllUsuarios() {
-        $stmt = $this->db->prepare("SELECT * FROM usuarios ORDER BY nombre ASC"); // Prepara la consulta SQL
+    // Método para obtener todos los escandallos ordenados por nombre ascendentemente
+    public function getAllEscandallos() {
+        $stmt = $this->db->prepare("SELECT * FROM escandallos ORDER BY id ASC"); // Prepara la consulta SQL
         $stmt->execute(); // Ejecuta la consulta
         return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna todos los resultados como un array asociativo
     }
 
-    // Método para crear un nuevo usuario
-    public function create($data) {
-        // Hashea la contraseña usando el algoritmo por defecto de PHP (actualmente bcrypt)
-        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-    
+    // Método para obtener todos los escandallos por código padre
+    public function getAllEscandallosByCodigoPadre($codigo_padre) {
+        $stmt = $this->db->prepare("SELECT * FROM escandallos WHERE codigo_articulo_padre = :codigo_padre ORDER BY id ASC");
+        $stmt->bindParam(':codigo_padre', $codigo_padre, PDO::PARAM_STR); // Usa STR si el código no es estrictamente numérico
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getMateriasPrimasConDatosDelArticulo($codigoPadre) {
+        // 1. Obtener códigos hijos desde la DB MySQL
+        $stmt = $this->db->prepare("SELECT codigo_articulo FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
+        $stmt->execute(['codigoPadre' => $codigoPadre]);
+        $codigosHijos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($codigosHijos)) {
+            return [];
+        }
+
+        // 2. Instancia de Articulo para filtrar con esos códigos
+        require_once __DIR__ . '/Articulo.php';
+        $articuloModel = new Articulo();
+
+        // 3. Obtener artículos con datos completos
+        $materias = $articuloModel->getArticulosPorCodigos($codigosHijos);
+
+        return $materias;
+    }
+
+    // Método para obtener todos los escandallos por código padre
+    public function getNumeroMaterias($codigo_padre) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM escandallos WHERE codigo_articulo_padre = :codigo_padre");
+        $stmt->bindParam(':codigo_padre', $codigo_padre, PDO::PARAM_STR);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn(); // ← devuelve solo el número
+    }
+
+
+    // Método para crear un nuevo escandallo
+    public function create($data) {    
         // Prepara la consulta SQL de inserción
         $stmt = $this->db->prepare("
-            INSERT INTO usuarios 
-                (nombre, email, password, alias, telefono, fecha_creacion, departamento_id)
+            INSERT INTO escandallos 
+                (codigo_articulo_padre, codigo_articulo)
             VALUES 
-                (:nombre, :email, :password, :alias, :telefono, :fecha_creacion, :departamento_id)
+                (:codigo_articulo_padre, :codigo_articulo)
         ");
     
         // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':password', $hash); // Usa el hash en lugar de la contraseña sin cifrar
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':fecha_creacion', $data['fecha_creacion']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
+        $stmt->bindParam(':codigo_articulo_padre', $data['codigo_articulo_padre']);
+        $stmt->bindParam(':codigo_articulo', $data['codigo_articulo']);
     
         // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
         return $stmt->execute();

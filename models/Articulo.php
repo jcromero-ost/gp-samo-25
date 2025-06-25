@@ -12,85 +12,130 @@ class Articulo {
     }
 
     public function getAllArticulos($offset = 0, $limit = 10) {
-        $articulos = $this->reader->getRecords($offset, $limit);
+        return $this->reader->getRecords($offset, $limit);
+    }
 
-        // Ordenar por 'FALTA' descendente si el campo existe (puede ser una fecha)
-        usort($articulos, function ($a, $b) {
-            return strcmp($b['CODIGO'], $a['CODIGO']);
+    public function buscarPorCodigoONombre($busqueda) {
+        $busqueda = mb_strtolower($busqueda);
+        $todos = $this->reader->getRecords();
+
+        $coincidentes = array_filter($todos, function ($art) use ($busqueda) {
+            return (
+                isset($art['CODIGO']) && stripos($art['CODIGO'], $busqueda) !== false
+            ) || (
+                isset($art['NOMBRE']) && stripos($art['NOMBRE'], $busqueda) !== false
+            );
         });
 
-        return $articulos;
+        return array_values($coincidentes);
     }
+
+    public function getArticulosPorCodigos(array $codigos) {
+        $todos = $this->reader->getRecords();
+        $filtrados = array_filter($todos, function($art) use ($codigos) {
+            return in_array($art['CODIGO'], $codigos);
+        });
+        return array_values($filtrados);
+    }
+
 
     public function getTotal() {
         return $this->reader->getRecordCount();
     }
 
-    // Método para crear un nuevo usuario
-    public function create($data) {
-        // Hashea la contraseña usando el algoritmo por defecto de PHP (actualmente bcrypt)
-        $hash = password_hash($data['passwd'], PASSWORD_DEFAULT);
-    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("
-            INSERT INTO usuarios 
-                (nombre, email, passwd, alias, telefono, fecha_creacion, departamento_id)
-            VALUES 
-                (:nombre, :email, :passwd, :alias, :telefono, :fecha_creacion, :departamento_id)
-        ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':passwd', $hash); // Usa el hash en lugar de la contraseña sin cifrar
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':fecha_creacion', $data['fecha_creacion']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    public function insertArticulo($data) {
+        // Generar nuevo CLAART
+        $ultimo = $this->obtenerUltimoCodigoCLAART();
+        $nuevoCLAART = $ultimo + 1;
+        $data['CLAART'] = $nuevoCLAART;
+
+        $this->completarCamposPorDefecto($data);
+        return $this->reader->insertRecord($data);
     }
 
-    
-    // Método para actualizar un usuario
-    public function update($data) {    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("
-            UPDATE usuarios 
-                SET nombre = :nombre, email= :email, alias= :alias, telefono= :telefono, departamento_id= :departamento_id
-            WHERE id= :id
-        ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
-        $stmt->bindParam(':id', $data['id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    public function obtenerUltimoCodigoCLAART() {
+        $registros = $this->reader->getRecords(0, $this->reader->getRecordCount());
+        $max = 0;
+        foreach ($registros as $registro) {
+            if (isset($registro['CLAART']) && is_numeric($registro['CLAART'])) {
+                $max = max($max, intval($registro['CLAART']));
+            }
+        }
+        return $max;
     }
 
-    // Método para borrar un usuario
-    public function delete($data) {    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("DELETE FROM usuarios WHERE id= :id");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':id', $data['id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    private function completarCamposPorDefecto(array &$datos) {
+        $porDefecto = [
+            'TYC' => 'T',
+            'LOTES' => 'F',
+            'CADUCA' => 'F',
+            'ESCANDALLO' => 'F',
+            'SERVICIO' => 'F',
+            'MULTILIN' => 'T',
+            'COMPONENTE' => 'F',
+            'SERGAR' => 'F',
+            'MULTIUNI' => 'F',
+            'BAJA' => 'F',
+            'OBLMODIF' => 'F',
+            'CONIVA' => 'F',
+            'AGRUPATASA' => 'F',
+            'CLAPRINTER' => 0,
+            'CLAMENUH' => 0,
+            'CLAGCOCINA' => 0,
+            'COMBINAR' => 'F',
+            'NOAGRUPAR' => 'F',
+            'CLATEMP' => 0,
+            'CLATASA' => 0,
+            'CLAMARCA' => 0,
+            'CLAPV' => 0,
+            'CLAFAM' => 0,
+            'TIPOCOSTE' => 0,
+            'PORCENT' => 0,
+            'ORDEN' => 0,
+            'PVPIVACOM1' => 0,
+            'PVPIVACOM2' => 0,
+            'PVPONLINE' => 0,
+            'PVPOFERTA' => 0,
+            'OFERTA' => 0,
+            'PMP' => 0,
+            'PVP1IVA' => 0,
+            'PVP2IVA' => 0,
+            'PVP3IVA' => 0,
+            'PVP4IVA' => 0,
+            'PVP5IVA' => 0,
+            'PVP6IVA' => 0,
+            'PVP7IVA' => 0,
+            'PVP8IVA' => 0,
+            'PVP9IVA' => 0,
+            'PVP10IVA' => 0,
+            'POSIMG' => 0,
+            'CLAUNI' => 0,
+            'GARMONTH' => 0,
+            'CLAEQUIVA' => 0,
+            'CLAPADRE' => 0,
+            'CODPADRE' => '',
+        ];
+
+        foreach ($porDefecto as $campo => $valor) {
+            if (!isset($datos[$campo]) || $datos[$campo] === '') {
+                $datos[$campo] = $valor;
+            }
+        }
+
+        // Si no hay padre, igualamos al código del propio artículo
+        if (empty($datos['CODPADRE']) && isset($datos['CODIGO'])) {
+            $datos['CODPADRE'] = $datos['CODIGO'];
+        }
+
+        // Si no hay descripción corta, usa el nombre
+        if (empty($datos['SHORTDESC']) && isset($datos['NOMBRE'])) {
+            $datos['SHORTDESC'] = substr($datos['NOMBRE'], 0, 50);
+        }
+
+        // Longdesc también opcionalmente
+        if (empty($datos['LONGDESC']) && isset($datos['NOMBRE'])) {
+            $datos['LONGDESC'] = substr($datos['NOMBRE'], 0, 254);
+        }
     }
-    
-    // Método opcional para obtener un usuario por su ID
-    public function getById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE id = :id"); // Prepara la consulta
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Asocia el parámetro :id con el valor $id
-        $stmt->execute(); // Ejecuta la consulta
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve un único resultado como array asociativo
-    }    
+
 }

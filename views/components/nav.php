@@ -14,7 +14,9 @@ $clientesActive = (
 );
 
 $articulosActive = (
-    $currentPath === BASE_URL . '/articulos'
+    $currentPath === BASE_URL . '/articulos' ||
+    $currentPath === BASE_URL . '/articulos_crear' ||
+    $currentPath === BASE_URL . '/escandallos_crear'
 );
 
 $pedidosActive = (
@@ -67,6 +69,12 @@ $pedidosActive = (
         <li class="nav-item dropdown <?= $articulosActive ? 'active' : '' ?>">
             <a class="nav-link dropdown-toggle <?= $articulosActive ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">Articulos</a>
             <ul class="dropdown-menu dropdown-menu-dark">
+                <li class="d-none">
+                    <a class="dropdown-item <?= $currentPath === BASE_URL . '/articulos_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/articulos_crear"><i class="bi bi-plus-square me-2"></i>Crear articulos</a>
+                </li>
+                <li>
+                    <a class="dropdown-item <?= $currentPath === BASE_URL . '/escandallos_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/escandallos_crear"><i class="bi bi-plus-square me-2"></i>Crear escandallo</a>
+                </li>
                 <li>
                     <a class="dropdown-item <?= $currentPath === BASE_URL . '/articulos' ? 'active' : '' ?>" href="<?= BASE_URL ?>/articulos"><i class="bi bi-tags me-2"></i>Gestionar articulos</a>
                 </li>
@@ -81,14 +89,38 @@ $pedidosActive = (
                 </li>
             </ul>
         </li>
+
+        <li>
+            <a class="dropdown-item <?= $currentPath === BASE_URL . '/usuarios' ? 'active' : '' ?>" href="<?= BASE_URL ?>/usuarios"><i class="bi bi-person-lines-fill me-2"></i>Gestionar escandallos</a>
+        </li>
       </ul>
+
+        <?php 
+        require_once __DIR__ . '/../../models/Ejercicio.php';
+
+            // Crea una instancia del modelo Ejercicio
+            $ejercicioModel = new Ejercicio();
+            // Obtiene los clientes de la base de datos usando el modelo, con paginación
+            $ejercicios = $ejercicioModel->getAllEjercicios();
+        ?>
+        <select name="ejercicio" id="ejercicio" class="form-select me-4" style="width: auto;">
+            <?php foreach ($ejercicios as $ejercicio): ?>
+                <option value="<?= htmlspecialchars($ejercicio['CLAEJE']) ?>">
+                    <?= htmlspecialchars($ejercicio['CLAEJE']) ?> <?= htmlspecialchars($ejercicio['NOMEJE']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+
+
+
       <span class="navbar-text me-3">Usuario: <strong><?php echo $_SESSION['nombre'] ?></strong></span>
 
       <form action="<?= BASE_URL ?>/logout" method="post" class="d-inline">
         <button type="submit" class="btn btn-outline-light btn-sm">
             <i class="bi bi-box-arrow-right"></i>
         </button>
-    </form>
+      </form>
     </div>
   </div>
 </nav>

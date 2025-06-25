@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 ?>
 
 <?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show m-2" role="alert">
         <?= htmlspecialchars($_SESSION['success']) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <?php endif; ?>
 
 <?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show m-2" role="alert">
         <?= htmlspecialchars($_SESSION['error']) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
@@ -21,7 +21,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <?php endif; ?>
 
 <?php if (!empty($_SESSION['info'])): ?>
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
+    <div class="alert alert-info alert-dismissible fade show m-2" role="alert">
         <?= htmlspecialchars($_SESSION['info']) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
@@ -29,7 +29,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <?php endif; ?>
 
 <?php if (!empty($_SESSION['mensaje'])): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show m-2" role="alert">
         <?= htmlspecialchars($_SESSION['mensaje']) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>

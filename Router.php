@@ -52,7 +52,7 @@ class Router
                             $instance = new $class();
 
                             if (method_exists($instance, $method)) {
-                                return call_user_func([$instance, $method]);
+                                return call_user_func([$instance, $method], $_POST);
                             } else {
                                 die("Método '$method' no encontrado en la clase '$class'");
                             }

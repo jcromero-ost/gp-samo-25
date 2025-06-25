@@ -16,7 +16,7 @@ class UsuarioController {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
             $nombre = $_POST['nombre'] ?? '';
             $email = $_POST['email'] ?? '';
-            $passwd = $_POST['passwd'] ?? '';
+            $password = $_POST['password'] ?? '';
             $alias = $_POST['alias'] ?? '';
             $telefono = $_POST['telefono'] ?? '';
             date_default_timezone_set('Europe/Madrid');
@@ -24,7 +24,7 @@ class UsuarioController {
             $departamento_id = $_POST['departamento_id'] ?? '';
 
             // Verifica que todos los campos requeridos estén completos
-            if (empty($nombre) || empty($email) || empty($passwd) || empty($alias) || empty($telefono) || empty($departamento_id)) {
+            if (empty($nombre) || empty($email) || empty($password) || empty($alias) || empty($telefono) || empty($departamento_id)) {
                 $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
                 header('Location:' . BASE_URL . '/usuarios_crear');
                 exit;
@@ -35,7 +35,7 @@ class UsuarioController {
             $usuario->create([
                 'nombre' => $nombre,
                 'email' => $email,
-                'passwd' => $passwd,
+                'password' => $password,
                 'alias' => $alias,
                 'telefono' => $telefono,
                 'fecha_creacion' => $fecha_creacion,

@@ -2,85 +2,91 @@
 document.addEventListener('DOMContentLoaded', () => {
   
   // Función para cargar los clientes vía AJAX
-  function cargarClientesPagina(page = 1) {
-    const url = `./clientes?page=${page}`; // URL con número de página
+function cargarClientesPagina(page = 1) {
+  const url = `./clientes?page=${page}`;
 
-    // Se realiza la petición fetch a la URL
-    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(res => res.json()) // Se espera respuesta JSON
-      .then(data => {
-        const container = document.getElementById('clientes-container');
-        if (!container) return; // Si no existe el contenedor, termina
+  fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('clientes-container');
+      if (!container) return;
 
-        // Construcción del HTML de la tabla y paginación
-        let html = `
-        <table class="table table-bordered table-striped">
-          <thead class="thead-dark">
+      let html = `
+      <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
             <tr>
-                <th>CLACLI</th>
-                <th>Codigo</th>
-                <th>Nombre</th>
-                <th>Direccion</th>
-                <th>Localidad</th>
-                <th>Provincia</th>
-                <th>Postal</th>
-                <th>Pais</th>
-                <th>Telefono</th>
+              <th>CLACLI</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Dirección</th>
+              <th>Localidad</th>
+              <th>Provincia</th>
+              <th>Postal</th>
+              <th>País</th>
+              <th>Teléfono</th>
             </tr>
           </thead>
           <tbody>`;
 
-        // Por cada cliente recibido, se construye una fila de la tabla
-        data.clientes.forEach((cliente, i) => {
-            html += `
-                <tr>
-                    <td>${cliente.CLACLI}</td>
-                    <td>${cliente.CODIGO}</td>
-                    <td>${cliente.NOMBRE}</td>
-                    <td>${cliente.DIRECCION ?? ''}</td>
-                    <td>${cliente.LOCALIDAD ?? ''}</td>
-                    <td>${cliente.PROVINCIA ?? ''}</td>
-                    <td>${cliente.POSTAL ?? ''}</td>
-                    <td>${cliente.PAIS ?? ''}</td>
-                    <td>${cliente.TELEFONO ?? ''}</td>
-                </tr>`;
-        });
-
-        html += `</tbody></table>`; // Cierre del tbody y tabla
-
-        // Agrega la paginación
+      data.clientes.forEach(cliente => {
         html += `
-        <nav aria-label="Paginación clientes">
-          <ul class="pagination">
-            ${data.page > 1
-              ? `<li class="page-item"><a href="#" class="page-link" data-page="${data.page - 1}">Anterior</a></li>`
-              : `<li class="page-item disabled"><span class="page-link">Anterior</span></li>`}
+          <tr>
+            <td>${cliente.CLACLI}</td>
+            <td>${cliente.CODIGO}</td>
+            <td>${cliente.NOMBRE}</td>
+            <td>${cliente.DIRECCION ?? ''}</td>
+            <td>${cliente.LOCALIDAD ?? ''}</td>
+            <td>${cliente.PROVINCIA ?? ''}</td>
+            <td>${cliente.POSTAL ?? ''}</td>
+            <td>${cliente.PAIS ?? ''}</td>
+            <td>${cliente.TELEFONO ?? ''}</td>
+          </tr>`;
+      });
 
-            <li class="page-item disabled"><span class="page-link">Página ${data.page} de ${data.totalPaginas}</span></li>
+      html += `
+          </tbody>
+        </table>
+      </div>`;
+
+      // Paginación con clases y estructura ajustadas
+      html += `
+        <nav aria-label="Paginación clientes" class="mt-4">
+          <ul class="pagination justify-content-center">
+            ${data.page > 1
+              ? `<li class="page-item"><a href="#" class="page-link" style="background-color: #111; color: white; border-color: #333;" data-page="${data.page - 1}">Anterior</a></li>`
+              : `<li class="page-item disabled"><span class="page-link" style="background-color: #111; color: white; border-color: #333;">Anterior</span></li>`}
+
+            <li class="page-item disabled">
+              <span class="page-link" style="background-color: #111; color: white; border-color: #333;">
+                Página ${data.page} de ${data.totalPaginas}
+              </span>
+            </li>
 
             ${data.page < data.totalPaginas
-              ? `<li class="page-item"><a href="#" class="page-link" data-page="${data.page + 1}">Siguiente</a></li>`
-              : `<li class="page-item disabled"><span class="page-link">Siguiente</span></li>`}
+              ? `<li class="page-item"><a href="#" class="page-link" style="background-color: #111; color: white; border-color: #333;" data-page="${data.page + 1}">Siguiente</a></li>`
+              : `<li class="page-item disabled"><span class="page-link" style="background-color: #111; color: white; border-color: #333;">Siguiente</span></li>`}
           </ul>
         </nav>`;
 
-        container.innerHTML = html; // Inserta el contenido HTML en el contenedor
 
-        // Re-inicializa eventos colapsables y de botones después de cargar nuevo contenido
-        inicializarEventosCollapse();
-        inicializarToggleButtons();
+      container.innerHTML = html;
 
-        // Resetea el estado de carga y limpia el contenido de las líneas para que se puedan volver a cargar al expandir
-        container.querySelectorAll('.lineas-content').forEach(div => {
-          div.dataset.loaded = 'false'; // marca como no cargado
-          div.dataset.page = '1';       // opcional, para paginar líneas
-          div.innerHTML = '';           // limpia el contenido previo
-        });
-      })
-      .catch(() => {
-        alert('Error al cargar clientes.'); // Muestra alerta si falla la carga
+      // Re-inicializa eventos si tienes (como en tu código original)
+      inicializarEventosCollapse();
+      inicializarToggleButtons();
+
+      container.querySelectorAll('.lineas-content').forEach(div => {
+        div.dataset.loaded = 'false';
+        div.dataset.page = '1';
+        div.innerHTML = '';
       });
-  }
+    })
+    .catch(() => {
+      alert('Error al cargar clientes.');
+    });
+}
+
 
   // Inicializa los eventos de colapso para las filas de líneas
   function inicializarEventosCollapse() {

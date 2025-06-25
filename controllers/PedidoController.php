@@ -7,31 +7,6 @@ require_once __DIR__ . '/../config/config.php';
 
 class PedidoController {
 
-    // Método para visualizar las lineas de un pedido
-    public function ver_lineas()
-    {
-        if (!isset($_POST['CLAPED'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID de pedido no especificado']);
-            return;
-        }
-
-        $claped = (int)$_POST['CLAPED'];
-        $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
-        $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 10;
-
-        $pedidoModel = new Pedido();
-
-        $lineas = $pedidoModel->getLineasPedido($claped, $offset, $limit);
-        $totalLineas = $pedidoModel->getTotalLineasPedido($claped); // necesitas crear este método
-
-        header('Content-Type: application/json');
-        echo json_encode([
-            'data' => $lineas,
-            'total' => $totalLineas
-        ]);
-    }
-
 
     // Método para crear un nuevo Articulo (usualmente al enviar un formulario)
     public function store() {

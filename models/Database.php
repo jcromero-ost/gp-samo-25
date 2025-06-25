@@ -2,6 +2,7 @@
 // Clase para leer archivos DBF (formato dBASE)
 class DBFReader {
     private $file;               // Manejador del archivo DBF abierto
+    private $filepath;
     private $fields = [];        // Arreglo de campos definidos en el archivo
     private $recordCount = 0;    // Número total de registros
     private $recordSize = 0;     // Tamaño de cada registro en bytes
@@ -12,7 +13,7 @@ class DBFReader {
         if (!file_exists($filepath)) {
             throw new Exception("Archivo no encontrado: $filepath"); // Verifica que el archivo exista
         }
-
+        $this->filepath = $filepath;
         $this->file = fopen($filepath, "r+b"); // permite lectura y escritura
 
         $this->parseHeader(); // Llama a método para leer el encabezado
@@ -42,6 +43,7 @@ class DBFReader {
     }
 
     // Mas rapido
+    
     public function getRecords($offset = 0, $limit = 100) {
         $records = [];
         $start = $this->headerSize + ($offset * $this->recordSize);
@@ -74,6 +76,30 @@ class DBFReader {
     }
 
 
+/*
+    public function getRecords() {
+        $records = []; // Arreglo que contendrá todos los registros
+
+        for ($i = 0; $i < $this->recordCount; $i++) {
+            $deleted = fread($this->file, 1); // Lee el primer byte para saber si el registro está marcado como eliminado
+            if ($deleted === '*') {
+                fseek($this->file, $this->recordSize - 1, SEEK_CUR); // Si está eliminado, salta el resto del registro
+                continue;
+            }
+
+            $record = []; // Arreglo para almacenar un registro
+            foreach ($this->fields as $field) {
+                $raw = fread($this->file, $field['length']); // Lee los bytes correspondientes al campo
+                $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252')); // Elimina espacios en blanco y asigna el valor al campo
+       // Elimina espacios en blanco y asigna el valor al campo
+            }
+
+            $records[] = $record; // Agrega el registro al arreglo de resultados
+        }
+
+        return $records; // Devuelve todos los registros leídos
+    }
+*/
     public function getRecordCount() {
         return $this->recordCount;
     }
@@ -128,33 +154,6 @@ public function getFilteredRecordsPaginado($campo, $valor, $offset = 0, $limit =
     return $results;
 }
 
-
-    // Método público para obtener todos los registros del archivo DBF
-    /*
-    public function getRecords() {
-        $records = []; // Arreglo que contendrá todos los registros
-
-        for ($i = 0; $i < $this->recordCount; $i++) {
-            $deleted = fread($this->file, 1); // Lee el primer byte para saber si el registro está marcado como eliminado
-            if ($deleted === '*') {
-                fseek($this->file, $this->recordSize - 1, SEEK_CUR); // Si está eliminado, salta el resto del registro
-                continue;
-            }
-
-            $record = []; // Arreglo para almacenar un registro
-            foreach ($this->fields as $field) {
-                $raw = fread($this->file, $field['length']); // Lee los bytes correspondientes al campo
-                $record[$field['name']] = trim(mb_convert_encoding($raw, 'UTF-8', 'CP1252')); // Elimina espacios en blanco y asigna el valor al campo
-       // Elimina espacios en blanco y asigna el valor al campo
-            }
-
-            $records[] = $record; // Agrega el registro al arreglo de resultados
-        }
-
-        return $records; // Devuelve todos los registros leídos
-    }
-        */
-
     private $currentRecordIndex = 0; // Índice para llevar la posición actual del registro leído
 
     public function nextRecord() {
@@ -190,38 +189,71 @@ public function getFilteredRecordsPaginado($campo, $valor, $offset = 0, $limit =
     }
 
 
-    private function normalizarDato($valor, $tipo, $longitud) {
-        $valor = trim($valor);
-
+    private function normalizarDato($valor, $tipo, $longitud, $decimales = 0) {
         switch ($tipo) {
-            case 'C': // Texto
-                $valor = substr($valor, 0, $longitud);
-                return str_pad($valor, $longitud, ' ', STR_PAD_RIGHT);
+            case 'C': // Character
+                $valor = (string)$valor;
+                $valor = mb_convert_encoding($valor, 'CP1252', 'UTF-8');
+                return str_pad(substr($valor, 0, $longitud), $longitud, ' ', STR_PAD_RIGHT);
 
-            case 'N': // Numérico
+            case 'N': // Numeric
             case 'F': // Float
-                $valor = preg_replace('/[^0-9.\-]/', '', $valor);
-                $valor = substr($valor, 0, $longitud);
-                return str_pad($valor, $longitud, ' ', STR_PAD_LEFT);
+                $valor = is_numeric($valor) ? $valor : 0;
+                $formato = number_format($valor, $decimales, '.', '');
+                return str_pad(substr($formato, 0, $longitud), $longitud, ' ', STR_PAD_LEFT);
 
-            case 'D': // Fecha en formato YYYYMMDD
-                if (preg_match('/^\d{8}$/', $valor)) {
-                    return $valor;
+            case 'D': // Date (YYYYMMDD)
+                if ($valor instanceof DateTime) {
+                    $fecha = $valor->format('Ymd');
+                } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {
+                    $fecha = str_replace('-', '', $valor);
+                } elseif (preg_match('/^\d{8}$/', $valor)) {
+                    $fecha = $valor;
+                } else {
+                    $fecha = str_repeat(' ', 8); // Campo vacío
                 }
-                return str_repeat('0', 8);
+                return $fecha;
 
-            case 'L': // Lógico (Y/N/T/F)
-                $v = strtoupper(substr($valor, 0, 1));
-                return in_array($v, ['Y','N','T','F']) ? $v : ' ';
+            case 'L': // Logical (T/F o espacio)
+                $valor = strtolower(trim($valor));
+                if (in_array($valor, ['1', 'y', 'yes', 't', 'true'])) {
+                    return 'T';
+                } elseif (in_array($valor, ['0', 'n', 'no', 'f', 'false'])) {
+                    return 'F';
+                } else {
+                    return ' ';
+                }
+
+            case 'M': // Memo (puntero a memo.dbt, si no se usa: 0)
+                return str_pad('0', $longitud, ' ', STR_PAD_LEFT);
+
+            case 'I': // Integer (4 bytes binarios)
+                $valor = intval($valor);
+                return pack("V", $valor); // Little endian 4 bytes
+
+            case 'B': // Double (8 bytes binarios)
+                $valor = floatval($valor);
+                return pack("d", $valor); // 8 bytes, double, little endian
+
+            case 'T': // DateTime (8 bytes binarios)
+                try {
+                    $dt = new DateTime(is_string($valor) ? $valor : 'now');
+                } catch (Exception $e) {
+                    $dt = new DateTime(); // fallback
+                }
+                $julian = gregoriantojd($dt->format('m'), $dt->format('d'), $dt->format('Y'));
+                $msec = ($dt->format('H') * 3600 + $dt->format('i') * 60 + $dt->format('s')) * 1000;
+                return pack("V", $julian) . pack("V", $msec);
 
             default:
-                return str_pad('', $longitud, ' ');
+                return str_repeat(' ', $longitud);
         }
     }
 
 
+
     public function insertRecord($data) {
-        $record = ' '; // Primer byte indica que el registro está activo (no eliminado)
+        $record = ' '; // Primer byte: registro activo
 
         foreach ($this->fields as $field) {
             $name = $field['name'];
@@ -230,10 +262,10 @@ public function getFilteredRecordsPaginado($campo, $valor, $offset = 0, $limit =
 
             $value = isset($data[$name]) ? $data[$name] : '';
 
-            // Normaliza
-            $normalized = $this->normalizarDato($value, $type, $length);
+            // Normaliza el valor
+            $normalized = $this->normalizarDato($value, $type, $length, $field['decimals'] ?? 0);
 
-            // Codifica a CP1252 si es texto
+            // Solo convierte a CP1252 si es texto (C)
             if ($type === 'C') {
                 $normalized = mb_convert_encoding($normalized, 'CP1252', 'UTF-8');
             }
@@ -241,37 +273,38 @@ public function getFilteredRecordsPaginado($campo, $valor, $offset = 0, $limit =
             $record .= $normalized;
         }
 
-
-        // Mover el puntero justo antes del byte 0x1A (EOF), si existe
-        $fileSize = filesize($this->filePath);
+        // Verifica el byte EOF (0x1A) al final
+        $fileSize = filesize($this->filepath);
         $lastByte = '';
         if ($fileSize > 0) {
             fseek($this->file, -1, SEEK_END);
             $lastByte = fread($this->file, 1);
         }
 
+        // Sitúa el puntero correctamente para escribir
         if ($lastByte === chr(0x1A)) {
-            // Reescribimos encima del byte 0x1A
-            fseek($this->file, -1, SEEK_END);
+            fseek($this->file, -1, SEEK_END); // Reescribe el EOF
         } else {
-            // Si no existe, simplemente escribe al final
-            fseek($this->file, 0, SEEK_END);
+            fseek($this->file, 0, SEEK_END); // Añade al final
         }
 
-        // Escribir el nuevo registro
+        // Escribe el registro
         fwrite($this->file, $record);
 
-        // Añadir nuevamente el byte EOF
+        // Añade EOF
         fwrite($this->file, chr(0x1A));
 
-        // Actualizar número de registros en el encabezado
+        // Actualiza contador de registros en el encabezado (byte 4-7)
         $this->recordCount++;
-        fseek($this->file, 4); // Posición del contador de registros
-        fwrite($this->file, pack("V", $this->recordCount)); // 4 bytes little endian
+        fseek($this->file, 4); 
+        fwrite($this->file, pack("V", $this->recordCount));
 
         fflush($this->file);
         return true;
     }
+
+
+
 
     public function deleteRecord(int $recordNumber): bool {
         if ($recordNumber < 0 || $recordNumber >= $this->recordCount) {
