@@ -13,7 +13,10 @@ class Usuario {
 
     // Método para obtener todos los usuarios ordenados por nombre ascendentemente
     public function getAllUsuarios() {
-        $stmt = $this->db->prepare("SELECT * FROM usuarios ORDER BY nombre ASC"); // Prepara la consulta SQL
+        $stmt = $this->db->prepare("SELECT u.*, d.nombre AS nombre_departamento
+                                        FROM usuarios u 
+                                        JOIN departamentos d ON d.id = u.departamento_id
+                                        ORDER BY nombre ASC"); // Prepara la consulta SQL
         $stmt->execute(); // Ejecuta la consulta
         return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna todos los resultados como un array asociativo
     }
@@ -26,9 +29,9 @@ class Usuario {
         // Prepara la consulta SQL de inserción
         $stmt = $this->db->prepare("
             INSERT INTO usuarios 
-                (nombre, email, password, alias, telefono, fecha_creacion, departamento_id)
+                (nombre, email, password, alias, telefono, fecha_creacion, departamento_id, foto)
             VALUES 
-                (:nombre, :email, :password, :alias, :telefono, :fecha_creacion, :departamento_id)
+                (:nombre, :email, :password, :alias, :telefono, :fecha_creacion, :departamento_id, :foto)
         ");
     
         // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
@@ -39,6 +42,7 @@ class Usuario {
         $stmt->bindParam(':telefono', $data['telefono']);
         $stmt->bindParam(':fecha_creacion', $data['fecha_creacion']);
         $stmt->bindParam(':departamento_id', $data['departamento_id']);
+        $stmt->bindParam(':foto', $data['foto']);
     
         // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
         return $stmt->execute();

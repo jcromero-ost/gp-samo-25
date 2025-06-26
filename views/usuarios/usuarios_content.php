@@ -5,7 +5,7 @@
     <table class="table table-hover align-middle mb-0">
       <thead class="table-dark">
         <tr>
-          <th>Nombre</th>
+          <th>Usuario</th>
           <th>Email</th>
           <th>Alias</th>
           <th>Teléfono</th>
@@ -18,12 +18,25 @@
         <?php if (!empty($usuarios)): ?>
           <?php foreach ($usuarios as $usuario): ?>
             <tr>
-              <td><?= htmlspecialchars($usuario['nombre']) ?></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <?php if (!empty($usuario['foto']) && str_starts_with($usuario['foto'], 'data:image')): ?>
+                  <img src="<?= $usuario['foto'] ?>" class="rounded-circle me-2" style="height: 40px;">
+                <?php else: ?>
+                  <img src="./public/images/images_users/<?= $usuario['foto'] ?? 'default.jpeg' ?>" class="rounded-circle me-2" style="height: 40px;">
+                <?php endif; ?>
+
+                <div>
+                  <strong><?= htmlspecialchars($usuario['nombre']) ?></strong><br>
+                  <small class="text-muted"><?= htmlspecialchars($usuario['alias'] ?? '') ?></small>
+                </div>
+              </div>
+            </td>
               <td><?= htmlspecialchars($usuario['email']) ?></td>
               <td><?= htmlspecialchars($usuario['alias']) ?></td>
               <td><?= htmlspecialchars($usuario['telefono']) ?></td>
               <td><?= htmlspecialchars($usuario['fecha_creacion']) ?></td>
-              <td><?= htmlspecialchars($usuario['departamento_id']) ?></td>
+              <td><?= htmlspecialchars($usuario['nombre_departamento']) ?></td>
               <td class="text-center">
                 <button type="button" class="btn btn-sm btn-warning btn-editar" data-id="<?= $usuario['id'] ?>" title="Editar">
                   <i class="bi bi-pencil-square"></i>

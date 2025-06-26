@@ -77,5 +77,5 @@
     <button type="submit" class="btn btn-dark">Guardar Usuario</button>
   </form>
 </div>
-
-
+<script src="./public/js/usuarios/usuarios_crear.js"></script>
+<script src="./public/js/usuarios/cropper_util.js"></script>

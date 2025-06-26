@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json()) // Convertir la respuesta a JSON
       .then(data => {
         const container = document.getElementById('pedidos-container'); // Contenedor donde se mostrarán los pedidos
-        if (!container) return; // Si no existe el contenedor, salir
+        if (!container) return; // Si no existe el contenedor, salir de la función
 
         // Construcción del HTML para la tabla con los pedidos
         let html = `
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </thead>
           <tbody>`;
 
-        // Iterar sobre cada pedido recibido
+        // Iterar sobre cada pedido recibido en el array data.pedidos
         data.pedidos.forEach((pedido, i) => {
           html += `
             <tr>
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </ul>
         </nav>`;
 
-        // Insertar el HTML construido dentro del contenedor
+        // Insertar el HTML construido dentro del contenedor en el DOM
         container.innerHTML = html;
 
         // Inicializar eventos para manejar el colapso de líneas y alternar botones
@@ -95,19 +95,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Función que inicializa el evento para cargar líneas cuando se expande un collapse
   function inicializarEventosCollapse() {
+    // Seleccionar todos los elementos tr con clase collapse (las filas colapsables)
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
+      // Agregar evento cuando el collapse se muestre (se expanda)
       collapseEl.addEventListener('shown.bs.collapse', () => {
         const container = collapseEl.querySelector('.lineas-content'); // Contenedor donde se cargarán las líneas
         if (container.dataset.loaded === 'true') return; // Si ya se cargaron las líneas, no hacer nada
 
         const claped = container.dataset.claped; // Obtener el código CLAPED para cargar las líneas correspondientes
-        window.cargarLineas(claped, container, 1, 5); // Llamar función global para cargar las líneas, paginadas 1 a 5
-      }, { once: true }); // Evento se ejecuta solo una vez por collapse
+        window.cargarLineas(claped, container, 1, 5); // Llamar función global para cargar las líneas, paginadas (página 1, 5 líneas)
+      }, { once: true }); // Evento se ejecuta solo una vez por collapse para evitar recargas repetidas
     });
   }
 
   // Función que inicializa los botones para mostrar y ocultar líneas, alternando su visibilidad
   function inicializarToggleButtons() {
+    // Seleccionar todos los botones que alternan líneas
     document.querySelectorAll('.toggle-lines-btn').forEach(btn => {
       btn.addEventListener('click', function () {
         const targetId = btn.getAttribute('data-bs-target'); // Obtener el id del collapse relacionado
@@ -133,7 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Delegación de evento click para manejar la paginación dentro del contenedor de pedidos
   document.getElementById('pedidos-container').addEventListener('click', e => {
-    if (e.target.matches('.page-link[data-page]')) { // Si el click fue en un enlace de paginación con data-page
+    // Si el click fue en un enlace de paginación con atributo data-page
+    if (e.target.matches('.page-link[data-page]')) {
       e.preventDefault(); // Prevenir comportamiento por defecto del enlace
       const page = parseInt(e.target.getAttribute('data-page'), 10); // Obtener número de página
       if (page) cargarPedidosPagina(page); // Cargar la página seleccionada

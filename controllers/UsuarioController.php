@@ -17,17 +17,33 @@ class UsuarioController {
             $nombre = $_POST['nombre'] ?? '';
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
             $alias = $_POST['alias'] ?? '';
             $telefono = $_POST['telefono'] ?? '';
             date_default_timezone_set('Europe/Madrid');
             $fecha_creacion = date('Y-m-d');
             $departamento_id = $_POST['departamento_id'] ?? '';
+            $foto = 'default.jpeg';
+
+            // Validacion de contraseña
+            if ($password !== $confirm_password) {
+                $_SESSION['error'] = 'Las contraseñas no coinciden.';
+                header('Location: /crear_usuario');
+                exit;
+            }
 
             // Verifica que todos los campos requeridos estén completos
             if (empty($nombre) || empty($email) || empty($password) || empty($alias) || empty($telefono) || empty($departamento_id)) {
                 $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
                 header('Location:' . BASE_URL . '/usuarios_crear');
                 exit;
+            }
+
+            // Procesar imagen recortada en base64
+            if (!empty($_POST['foto_recortada'])) {
+                $foto = $_POST['foto_recortada']; // Base64 completa
+            } else {
+                $foto = 'default.jpeg'; // O podrías guardar null
             }
 
             // Crea un nuevo usuario usando el modelo Usuario
@@ -39,7 +55,8 @@ class UsuarioController {
                 'alias' => $alias,
                 'telefono' => $telefono,
                 'fecha_creacion' => $fecha_creacion,
-                'departamento_id' => $departamento_id
+                'departamento_id' => $departamento_id,
+                'foto' => $foto
             ]);
 
             // Mensaje de éxito y redirección

@@ -3,14 +3,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Función para cargar los artículos vía AJAX
   function cargarArticulosPagina(page = 1) {
-    const url = `./articulos?page=${page}`;
+    const url = `./articulos?page=${page}`; // URL con el número de página
 
+    // Llamada fetch al backend para obtener los artículos en formato JSON
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById('articulos-container');
         if (!container) return;
 
+        // Comienza a construir el HTML de la tabla de artículos
         let html = `
         <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
           <table class="table table-hover align-middle mb-0">
@@ -27,21 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
             </thead>
             <tbody>`;
 
-data.articulos.forEach((articulo, i) => {
-  const materiasCount = articulo.materias_count || 0;
+        // Itera sobre los artículos recibidos
+        data.articulos.forEach((articulo, i) => {
+          const materiasCount = articulo.materias_count || 0; // Cantidad de materias primas
 
-  html += `
+          html += `
     <tr>
       <td>${articulo.CODIGO}</td>
       <td>${articulo.NOMBRE}</td>
-      <td>Color</td>
-      <td>Peso</td>
-      <td>Modelo</td>
-      <td>Marca</td>
+      <td>Color</td> <!-- Placeholder para el color -->
+      <td>Peso</td> <!-- Placeholder para el peso -->
+      <td>Modelo</td> <!-- Placeholder para el modelo -->
+      <td>Marca</td> <!-- Placeholder para la marca -->
       <td>`;
 
-  if (materiasCount > 0) {
-    html += `
+          // Si tiene materias primas, muestra botones para expandir/cerrar
+          if (materiasCount > 0) {
+            html += `
       <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
         data-bs-toggle="collapse"
         data-bs-target="#collapseLines${i}"
@@ -57,15 +61,16 @@ data.articulos.forEach((articulo, i) => {
         Ocultar materias primas
       </button>
     `;
-  } else {
-    html += `
+          } else {
+            // Si no tiene materias primas, botón deshabilitado
+            html += `
       <button class="btn btn-sm btn-danger" type="button" disabled>
         No tiene materias
       </button>
     `;
-  }
+          }
 
-  html += `
+          html += `
       </td>
     </tr>
     <tr class="collapse" id="collapseLines${i}">
@@ -75,14 +80,14 @@ data.articulos.forEach((articulo, i) => {
         </div>
       </td>
     </tr>`;
-});
+        });
 
         html += `
             </tbody>
           </table>
         </div>`;
 
-        // Paginación con estilo oscuro
+        // Agrega la sección de paginación
         html += `
         <nav aria-label="Paginación artículos" class="mt-4">
           <ul class="pagination justify-content-center">
@@ -102,11 +107,14 @@ data.articulos.forEach((articulo, i) => {
           </ul>
         </nav>`;
 
+        // Inserta el HTML en el contenedor principal
         container.innerHTML = html;
 
+        // Inicializa colapsables y botones de mostrar/ocultar
         inicializarEventosCollapse();
         inicializarToggleButtons();
 
+        // Limpia y marca las materias primas como no cargadas aún
         container.querySelectorAll('.materias-content').forEach(div => {
           div.dataset.loaded = 'false';
           div.dataset.page = '1';
@@ -118,7 +126,7 @@ data.articulos.forEach((articulo, i) => {
       });
   }
 
-  // Carga las materias primas de un artículo
+  // Carga las materias primas de un artículo específico
   function cargarMaterias(codigoPadre, container, page = 1, limit = 5) {
     fetch('./obtener_materias_por_codigo', {
       method: 'POST',
@@ -129,11 +137,13 @@ data.articulos.forEach((articulo, i) => {
     .then(data => {
       container.dataset.loaded = 'true';
 
+      // Si no hay datos, se informa al usuario
       if (!Array.isArray(data) || data.length === 0) {
         container.innerHTML = '<div class="text-muted">Este artículo no tiene materias primas.</div>';
         return;
       }
 
+      // Construcción de tabla con materias primas
       let html = `
         <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
           <table class="table table-hover align-middle mb-0">
@@ -151,7 +161,7 @@ data.articulos.forEach((articulo, i) => {
               <tr>
                 <td>${materia.CODIGO}</td>
                 <td>${materia.NOMBRE}</td>
-                <td>Cantidad</td>
+                <td>Cantidad</td> <!-- Placeholder para cantidad -->
               </tr>`;
       });
 
@@ -169,14 +179,15 @@ data.articulos.forEach((articulo, i) => {
     });
   }
 
-  // Inicializa los eventos de colapso
+  // Inicializa los eventos de colapso (Bootstrap)
   function inicializarEventosCollapse() {
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
-      if (collapseEl.dataset.eventsAttached === 'true') return;
+      if (collapseEl.dataset.eventsAttached === 'true') return; // Evita múltiples bindings
 
+      // Evento al mostrar el colapsable
       collapseEl.addEventListener('shown.bs.collapse', () => {
         const container = collapseEl.querySelector('.materias-content');
-        if (container.dataset.loaded === 'true') return;
+        if (container.dataset.loaded === 'true') return; // Ya cargado
 
         const codigo = container.dataset.codigo;
         cargarMaterias(codigo, container, 1, 5);
@@ -186,7 +197,7 @@ data.articulos.forEach((articulo, i) => {
     });
   }
 
-  // Inicializa los botones de mostrar/ocultar materias primas
+  // Inicializa el comportamiento de los botones mostrar/ocultar materias
   function inicializarToggleButtons() {
     const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
 
@@ -198,11 +209,13 @@ data.articulos.forEach((articulo, i) => {
         const showBtn = row.querySelector('.show-btn');
         const hideBtn = row.querySelector('.hide-btn');
 
+        // Evento cuando se oculta el colapsable
         target.addEventListener('hidden.bs.collapse', () => {
           showBtn.classList.remove('d-none');
           hideBtn.classList.add('d-none');
         }, { once: true });
 
+        // Evento cuando se muestra el colapsable
         target.addEventListener('shown.bs.collapse', () => {
           showBtn.classList.add('d-none');
           hideBtn.classList.remove('d-none');
@@ -222,6 +235,6 @@ data.articulos.forEach((articulo, i) => {
     }
   });
 
-  // Carga inicial de la primera página de artículos
+  // Carga inicial de la primera página de artículos al cargar el DOM
   cargarArticulosPagina(1);
 });

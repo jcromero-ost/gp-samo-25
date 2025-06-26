@@ -1,17 +1,18 @@
 // Espera a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
   
-  // Función para cargar los clientes vía AJAX
-function cargarClientesPagina(page = 1) {
-  const url = `./clientes?page=${page}`;
+  // Función para cargar los clientes vía AJAX desde el servidor
+  function cargarClientesPagina(page = 1) {
+    const url = `./clientes?page=${page}`; // Construye la URL con el número de página
 
-  fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById('clientes-container');
-      if (!container) return;
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }) // Realiza una solicitud AJAX
+      .then(res => res.json()) // Parsea la respuesta como JSON
+      .then(data => {
+        const container = document.getElementById('clientes-container'); // Contenedor de los datos
+        if (!container) return; // Si no existe el contenedor, salir
 
-      let html = `
+        // Comienza a construir el HTML de la tabla de clientes
+        let html = `
       <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-dark">
@@ -28,8 +29,9 @@ function cargarClientesPagina(page = 1) {
           </thead>
           <tbody>`;
 
-      data.clientes.forEach(cliente => {
-        html += `
+        // Itera sobre los clientes recibidos y agrega filas a la tabla
+        data.clientes.forEach(cliente => {
+          html += `
           <tr>
             <td>${cliente.CODIGO}</td>
             <td>${cliente.NOMBRE}</td>
@@ -40,15 +42,16 @@ function cargarClientesPagina(page = 1) {
             <td>${cliente.PAIS ?? ''}</td>
             <td>${cliente.TELEFONO ?? ''}</td>
           </tr>`;
-      });
+        });
 
-      html += `
+        // Cierra la tabla
+        html += `
           </tbody>
         </table>
       </div>`;
 
-      // Paginación con clases y estructura ajustadas
-      html += `
+        // Agrega el componente de paginación
+        html += `
         <nav aria-label="Paginación clientes" class="mt-4">
           <ul class="pagination justify-content-center">
             ${data.page > 1
@@ -67,63 +70,64 @@ function cargarClientesPagina(page = 1) {
           </ul>
         </nav>`;
 
+        // Inserta todo el HTML generado en el contenedor
+        container.innerHTML = html;
 
-      container.innerHTML = html;
+        // Inicializa comportamientos interactivos (si aplican líneas colapsables)
+        inicializarEventosCollapse();
+        inicializarToggleButtons();
 
-      // Re-inicializa eventos si tienes (como en tu código original)
-      inicializarEventosCollapse();
-      inicializarToggleButtons();
-
-      container.querySelectorAll('.lineas-content').forEach(div => {
-        div.dataset.loaded = 'false';
-        div.dataset.page = '1';
-        div.innerHTML = '';
+        // Limpia el estado de carga previo de líneas
+        container.querySelectorAll('.lineas-content').forEach(div => {
+          div.dataset.loaded = 'false';
+          div.dataset.page = '1';
+          div.innerHTML = '';
+        });
+      })
+      .catch(() => {
+        // Muestra alerta si ocurre error en la carga de datos
+        alert('Error al cargar clientes.');
       });
-    })
-    .catch(() => {
-      alert('Error al cargar clientes.');
-    });
-}
+  }
 
-
-  // Inicializa los eventos de colapso para las filas de líneas
+  // Inicializa eventos de colapso de Bootstrap para líneas de clientes
   function inicializarEventosCollapse() {
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
-      // Evita adjuntar múltiples veces
+      // Evita múltiples registros del mismo evento
       if (collapseEl.dataset.eventsAttached === 'true') return;
 
-      // Evento cuando se expande el colapso
+      // Cuando el colapsable se expande, carga las líneas si no están cargadas aún
       collapseEl.addEventListener('shown.bs.collapse', () => {
         const container = collapseEl.querySelector('.lineas-content');
-        if (container.dataset.loaded === 'true') return; // Si ya fue cargado, no hace nada
+        if (container.dataset.loaded === 'true') return;
 
-        const claped = container.dataset.claped;
-        cargarLineas(claped, container, 1, 5); // Carga las líneas del clientes
+        const claped = container.dataset.claped; // Código del cliente
+        cargarLineas(claped, container, 1, 5); // Función que debe estar definida en otro archivo
       });
 
-      collapseEl.dataset.eventsAttached = 'true'; // Marca como con evento adjunto
+      collapseEl.dataset.eventsAttached = 'true'; // Marca este colapsable como con eventos adjuntos
     });
   }
 
-  // Inicializa los botones de mostrar/ocultar líneas
+  // Inicializa los botones de mostrar/ocultar líneas asociadas al cliente
   function inicializarToggleButtons() {
     const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
 
     toggleButtons.forEach(btn => {
       btn.addEventListener('click', function () {
-        const targetId = btn.getAttribute('data-bs-target');
+        const targetId = btn.getAttribute('data-bs-target'); // ID del colapsable
         const target = document.querySelector(targetId);
         const row = btn.closest('tr');
         const showBtn = row.querySelector('.show-btn');
         const hideBtn = row.querySelector('.hide-btn');
 
-        // Evento al colapsar (ocultar)
+        // Cuando se oculta el colapsable, se alternan los botones
         target.addEventListener('hidden.bs.collapse', () => {
           showBtn.classList.remove('d-none');
           hideBtn.classList.add('d-none');
         }, { once: true });
 
-        // Evento al expandir (mostrar)
+        // Cuando se muestra el colapsable, se alternan los botones
         target.addEventListener('shown.bs.collapse', () => {
           showBtn.classList.add('d-none');
           hideBtn.classList.remove('d-none');
@@ -132,22 +136,21 @@ function cargarClientesPagina(page = 1) {
     });
   }
 
-  // IMPORTANTE:
+  // NOTA IMPORTANTE:
   // Se asume que la función cargarLineas(claped, container, page, limit)
-  // está definida en otro archivo
-  // Si no está definida, se debe incluir o importar ese JS antes que este archivo
+  // está definida en otro archivo JS cargado previamente
 
-  // Captura los clics en los enlaces de paginación
+  // Captura clics en enlaces de paginación dentro del contenedor de clientes
   document.getElementById('clientes-container').addEventListener('click', e => {
     if (e.target.matches('.page-link[data-page]')) {
-      e.preventDefault(); // Previene navegación por defecto
-      const page = parseInt(e.target.getAttribute('data-page'), 10);
+      e.preventDefault(); // Previene comportamiento por defecto del enlace
+      const page = parseInt(e.target.getAttribute('data-page'), 10); // Obtiene número de página
       if (page) {
-        cargarClientesPagina(page); // Carga la página seleccionada
+        cargarClientesPagina(page); // Llama a la función para cargar la nueva página
       }
     }
   });
 
-  // Carga la primera página de clientes al iniciar
+  // Carga inicial de la primera página al cargar el documento
   cargarClientesPagina(1);
 });
