@@ -1,3 +1,4 @@
+/*
 document.addEventListener('DOMContentLoaded', () => {
   // Definimos la función global cargarMaterias para cargar las líneas de un pedido
   window.cargarMaterias = function(codpadre, container, page = 1, limit = 5) {
@@ -105,3 +106,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 });
+*/

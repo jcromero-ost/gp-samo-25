@@ -46,13 +46,11 @@ class Escandallo {
         return $materias;
     }
 
-    // Método para obtener todos los escandallos por código padre
-    public function getNumeroMaterias($codigo_padre) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM escandallos WHERE codigo_articulo_padre = :codigo_padre");
-        $stmt->bindParam(':codigo_padre', $codigo_padre, PDO::PARAM_STR);
-        $stmt->execute();
-        return (int) $stmt->fetchColumn(); // ← devuelve solo el número
-    }
+public function countMateriasPrimas($codigoPadre) {
+    $stmt = $this->db->prepare("SELECT COUNT(*) FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
+    $stmt->execute(['codigoPadre' => $codigoPadre]);
+    return (int)$stmt->fetchColumn();
+}
 
 
     // Método para crear un nuevo escandallo

@@ -13,8 +13,7 @@ class ArticuloController {
     }
 
     // Método para las sugerencias de los articulos
-    public function buscar()
-    {
+    public function buscar() {
         header('Content-Type: application/json');
 
         $q = isset($_POST['q']) ? trim($_POST['q']) : '';

@@ -16,45 +16,66 @@ document.addEventListener('DOMContentLoaded', () => {
           <table class="table table-hover align-middle mb-0">
             <thead class="table-dark">
               <tr>
-                <th>CLAART</th>
                 <th>Código</th>
                 <th>Nombre</th>
+                <th>Color</th>
+                <th>Peso</th>
+                <th>Modelo</th>
+                <th>Marca</th>
                 <th>Materias Primas</th>
               </tr>
             </thead>
             <tbody>`;
 
-        data.articulos.forEach((articulo, i) => {
-          html += `
-            <tr>
-              <td>${articulo.CLAART}</td>
-              <td>${articulo.CODIGO}</td>
-              <td>${articulo.NOMBRE}</td>
-              <td>
-                <button class="btn btn-sm btn-info toggle-lines-btn show-btn" type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseLines${i}"
-                  aria-expanded="false"
-                  aria-controls="collapseLines${i}">
-                  Ver materias primas
-                </button>
-                <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseLines${i}"
-                  aria-expanded="true"
-                  aria-controls="collapseLines${i}">
-                  Ocultar materias primas
-                </button>
-              </td>
-            </tr>
-            <tr class="collapse" id="collapseLines${i}">
-              <td colspan="4">
-                <div class="p-2">
-                  <div class="mt-2 materias-content" data-codpadre="${articulo.CODIGO}" data-loaded="false"></div>
-                </div>
-              </td>
-            </tr>`;
-        });
+data.articulos.forEach((articulo, i) => {
+  const materiasCount = articulo.materias_count || 0;
+
+  html += `
+    <tr>
+      <td>${articulo.CODIGO}</td>
+      <td>${articulo.NOMBRE}</td>
+      <td>Color</td>
+      <td>Peso</td>
+      <td>Modelo</td>
+      <td>Marca</td>
+      <td>`;
+
+  if (materiasCount > 0) {
+    html += `
+      <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapseLines${i}"
+        aria-expanded="false"
+        aria-controls="collapseLines${i}">
+        Ver materias (${materiasCount})
+      </button>
+      <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapseLines${i}"
+        aria-expanded="true"
+        aria-controls="collapseLines${i}">
+        Ocultar materias primas
+      </button>
+    `;
+  } else {
+    html += `
+      <button class="btn btn-sm btn-danger" type="button" disabled>
+        No tiene materias
+      </button>
+    `;
+  }
+
+  html += `
+      </td>
+    </tr>
+    <tr class="collapse" id="collapseLines${i}">
+      <td colspan="7">
+        <div class="p-2">
+          <div class="mt-2 materias-content" data-codigo="${articulo.CODIGO}" data-loaded="false"></div>
+        </div>
+      </td>
+    </tr>`;
+});
 
         html += `
             </tbody>
@@ -114,12 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let html = `
-        <div class="table-responsive rounded-3 overflow-hidden shadow-sm" style="background-color: #fff;">
+        <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
                 <th>Código</th>
                 <th>Nombre</th>
+                <th>Cantidad</th>
               </tr>
             </thead>
             <tbody>`;
@@ -129,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <tr>
                 <td>${materia.CODIGO}</td>
                 <td>${materia.NOMBRE}</td>
+                <td>Cantidad</td>
               </tr>`;
       });
 
@@ -155,8 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = collapseEl.querySelector('.materias-content');
         if (container.dataset.loaded === 'true') return;
 
-        const codpadre = container.dataset.codpadre;
-        cargarMaterias(codpadre, container, 1, 5);
+        const codigo = container.dataset.codigo;
+        cargarMaterias(codigo, container, 1, 5);
       });
 
       collapseEl.dataset.eventsAttached = 'true';

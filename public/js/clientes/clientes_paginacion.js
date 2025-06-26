@@ -16,7 +16,6 @@ function cargarClientesPagina(page = 1) {
         <table class="table table-hover align-middle mb-0">
           <thead class="table-dark">
             <tr>
-              <th>CLACLI</th>
               <th>Código</th>
               <th>Nombre</th>
               <th>Dirección</th>
@@ -32,7 +31,6 @@ function cargarClientesPagina(page = 1) {
       data.clientes.forEach(cliente => {
         html += `
           <tr>
-            <td>${cliente.CLACLI}</td>
             <td>${cliente.CODIGO}</td>
             <td>${cliente.NOMBRE}</td>
             <td>${cliente.DIRECCION ?? ''}</td>
