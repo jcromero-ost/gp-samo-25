@@ -10,7 +10,7 @@ $clienteModel = new Cliente();
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
 // Define cuántos registros se mostrarán por página
-$limit = 10;
+$limit = 15;
 
 // Calcula el offset para la consulta SQL (desde qué registro comenzar)
 $offset = ($page - 1) * $limit;
@@ -29,14 +29,33 @@ if (
     !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
 ) {
-    // Devuelve la respuesta en formato JSON
-    header('Content-Type: application/json');
-    echo json_encode([
-        'clientes' => $clientes,         // Lista de clientes paginados
-        'page' => $page,               // Página actual
-        'totalPaginas' => $totalPaginas, // Total de páginas
-    ]);
-    exit; // Termina la ejecución del script para no cargar la vista completa
+    header('Content-Type: application/json; charset=utf-8');
+
+    // Validar que todos los valores sean UTF-8 válidos
+    foreach ($clientes as $i => &$cli) {
+        foreach ($cli as $campo => &$valor) {
+            if (!mb_check_encoding($valor, 'UTF-8')) {
+                error_log("Codificación inválida en cliente {$i}, campo {$campo}");
+                $valor = ''; // limpiar campo para evitar errores en JSON
+            }
+        }
+    }
+    unset($cli); // rompe referencia
+
+    $resultado = [
+        'clientes' => $clientes,
+        'page' => $page,
+        'totalPaginas' => $totalPaginas,
+    ];
+
+    $json = json_encode($resultado);
+    if ($json === false) {
+        echo json_encode(['error' => 'Error en JSON: ' . json_last_error_msg()]);
+        exit;
+    }
+
+    echo $json;
+    exit;
 }
 
 /*

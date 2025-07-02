@@ -12,7 +12,7 @@ class Cliente {
         $this->reader = new DBFReader($this->ruta);
     }
 
-    public function getAllClientes($offset = 0, $limit = 10) {
+    public function getAllClientes($offset, $limit) {
         $clientes = $this->reader->getRecords($offset, $limit);
 
         // Ordenar por 'FALTA' descendente si el campo existe (puede ser una fecha)

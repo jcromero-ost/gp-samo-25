@@ -8,7 +8,7 @@
       </div>
 
       <div class="col-md-6">
-        <label for="alias" class="form-label">Alias</label>
+        <label for="alias" class="form-label">Nombre de usuario</label>
         <input type="text" class="form-control" id="alias" name="alias">
       </div>
     </div>

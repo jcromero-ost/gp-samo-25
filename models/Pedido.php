@@ -1,14 +1,14 @@
 <?php
 // Incluye el archivo de conexión a la base de datos
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/DatabaseLOCAL.php';
 
 // Definición de la clase Pedido, que se encarga de manejar operaciones sobre la tabla 'pedidos'
 class Pedido {
     private $reader;
 
     public function __construct() {
-        $ruta = "C:\\SAMO\\ClasGes6SP26\\DATOS\\pedido.dbf";
-        $this->reader = new DBFReader($ruta);
+        $this->reader = new DBFReader('C:\\SAMO\\ClasGes6SP26\\DATOS\\pedido.dbf', 'CP1252');
     }
 
     // Método que devuelve todos los pedidos
@@ -27,71 +27,37 @@ class Pedido {
         return $this->reader->getRecordCount();
     }
 
-    // Método para crear un nuevo usuario
-    public function create($data) {
-        // Hashea la contraseña usando el algoritmo por defecto de PHP (actualmente bcrypt)
-        $hash = password_hash($data['passwd'], PASSWORD_DEFAULT);
-    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("
-            INSERT INTO usuarios 
-                (nombre, email, passwd, alias, telefono, fecha_creacion, departamento_id)
-            VALUES 
-                (:nombre, :email, :passwd, :alias, :telefono, :fecha_creacion, :departamento_id)
-        ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':passwd', $hash); // Usa el hash en lugar de la contraseña sin cifrar
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':fecha_creacion', $data['fecha_creacion']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    // Pedidos por ejercicio
+    public function getPedidosPorEjercicio($claeje, $offset = 0, $limit = 10) {
+        $pedidos = array_filter($this->reader->getRecords(), function ($p) use ($claeje) {
+            return isset($p['CLAEJE']) && (int)$p['CLAEJE'] === (int)$claeje;
+        });
+
+        // Ordenar por NUMERO descendente
+        usort($pedidos, function ($a, $b) {
+            return (int)$b['NUMERO'] <=> (int)$a['NUMERO'];
+        });
+
+        return array_slice($pedidos, $offset, $limit);
     }
 
-    
-    // Método para actualizar un usuario
-    public function update($data) {    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("
-            UPDATE usuarios 
-                SET nombre = :nombre, email= :email, alias= :alias, telefono= :telefono, departamento_id= :departamento_id
-            WHERE id= :id
-        ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
-        $stmt->bindParam(':id', $data['id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    public function getTotalPorEjercicio($claeje) {
+        $pedidos = array_filter($this->reader->getRecords(), function ($p) use ($claeje) {
+            return isset($p['CLAEJE']) && (int)$p['CLAEJE'] === (int)$claeje;
+        });
+
+        return count($pedidos);
     }
 
-    // Método para borrar un usuario
-    public function delete($data) {    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("DELETE FROM usuarios WHERE id= :id");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':id', $data['id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
+    public function actualizarEjercicioPredeterminado($userId, $claeje) {
+        try {
+            $reader = DatabaseLOCAL::connect(); // Asume que tienes Database::connect()
+            $stmt = $reader->prepare("UPDATE usuarios SET ejercicio_predeterminado = ? WHERE id = ?");
+            return $stmt->execute([(int)$claeje, (int)$userId]);
+        } catch (PDOException $e) {
+            error_log("Error al actualizar ejercicio predeterminado: " . $e->getMessage());
+            return false;
+        }
     }
-    
-    // Método opcional para obtener un usuario por su ID
-    public function getById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE id = :id"); // Prepara la consulta
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Asocia el parámetro :id con el valor $id
-        $stmt->execute(); // Ejecuta la consulta
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve un único resultado como array asociativo
-    }    
+
 }

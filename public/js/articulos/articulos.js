@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // Función para cargar los artículos vía AJAX
-  function cargarArticulosPagina(page = 1) {
+  window.cargarArticulosPagina = function(page = 1) {
     const url = `./articulos?page=${page}`; // URL con el número de página
 
     // Llamada fetch al backend para obtener los artículos en formato JSON
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <th>Peso</th>
                 <th>Modelo</th>
                 <th>Marca</th>
-                <th>Materias Primas</th>
+                <th class="text-center">Materias Primas</th>
               </tr>
             </thead>
             <tbody>`;
@@ -37,11 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <tr>
       <td>${articulo.CODIGO}</td>
       <td>${articulo.NOMBRE}</td>
-      <td>Color</td> <!-- Placeholder para el color -->
-      <td>Peso</td> <!-- Placeholder para el peso -->
-      <td>Modelo</td> <!-- Placeholder para el modelo -->
-      <td>Marca</td> <!-- Placeholder para la marca -->
-      <td>`;
+      <td>${articulo.CLAPRO}</td>
+      <td>${articulo.PVP1}</td>
+      <td>Modelo</td>
+      <td>Marca</td>
+      <td class="text-center">`;
 
           // Si tiene materias primas, muestra botones para expandir/cerrar
           if (materiasCount > 0) {
@@ -51,21 +51,21 @@ document.addEventListener('DOMContentLoaded', () => {
         data-bs-target="#collapseLines${i}"
         aria-expanded="false"
         aria-controls="collapseLines${i}">
-        Ver materias (${materiasCount})
+        <i class="bi bi-caret-down-square me-2"></i>Ver materias primas (${materiasCount})
       </button>
       <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
         data-bs-toggle="collapse"
         data-bs-target="#collapseLines${i}"
         aria-expanded="true"
         aria-controls="collapseLines${i}">
-        Ocultar materias primas
+        <i class="bi bi-caret-up-square me-2"></i>Ocultar materias primas
       </button>
     `;
           } else {
             // Si no tiene materias primas, botón deshabilitado
             html += `
       <button class="btn btn-sm btn-danger" type="button" disabled>
-        No tiene materias
+        No tiene materias primas
       </button>
     `;
           }
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <tr>
                 <td>${materia.CODIGO}</td>
                 <td>${materia.NOMBRE}</td>
-                <td>Cantidad</td> <!-- Placeholder para cantidad -->
+                <td>${materia.CANTIDAD}</td>
               </tr>`;
       });
 
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Inicializa los eventos de colapso (Bootstrap)
+  // Inicializa los eventos de colapso
   function inicializarEventosCollapse() {
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
       if (collapseEl.dataset.eventsAttached === 'true') return; // Evita múltiples bindings

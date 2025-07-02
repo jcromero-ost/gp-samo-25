@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../models/Articulo.php';
 require_once __DIR__ . '/../../models/Escandallo.php';
@@ -27,12 +30,32 @@ if (
     !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
 ) {
-    header('Content-Type: application/json');
-    echo json_encode([
+    header('Content-Type: application/json; charset=utf-8');
+
+    // Validar que todos los valores sean UTF-8 válidos
+    foreach ($articulos as $i => &$art) {
+        foreach ($art as $campo => &$valor) {
+            if (is_string($valor) && !mb_check_encoding($valor, 'UTF-8')) {
+                error_log("Codificación inválida en artículo {$i}, campo {$campo}");
+                $valor = '';
+            }
+        }
+    }
+    unset($art); // rompe referencia
+
+    $resultado = [
         'articulos' => $articulos,
         'page' => $page,
         'totalPaginas' => $totalPaginas,
-    ]);
+    ];
+
+    $json = json_encode($resultado);
+    if ($json === false) {
+        echo json_encode(['error' => 'Error en JSON: ' . json_last_error_msg()]);
+        exit;
+    }
+
+    echo $json;
     exit;
 }
 

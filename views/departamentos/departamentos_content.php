@@ -1,7 +1,12 @@
 <div class="m-4">
   <h2 class="titulo mb-4">Crear Departamento</h2>
 
-  <form class="form-section shadow p-3" method="post" action="<?= BASE_URL ?>/departamentos_crear">
+<button id="toggleBtn" class="btn btn-success">
+  <i class="bi bi-caret-down-square"></i> Crear nuevo departamento
+</button>
+
+<div id="formulario_crear_departamento" style="display:none;">
+  <form class="form-section shadow p-3 mt-3" method="post" action="<?= BASE_URL ?>/departamentos_crear">
     <div class="row align-items-end g-2">
       <div class="col-md-10">
         <label for="nombre" class="form-label">Nombre del departamento</label>
@@ -13,6 +18,7 @@
       </div>
     </div>
   </form>
+</div>
 </div>
 
 <div class="m-4">
@@ -58,3 +64,4 @@
 <?php include_once __DIR__ . '../../components/modals/departamentos/departamentos_eliminar_modal.php'; ?>
 
 <script src="./public/js/departamentos/departamentos_eliminar.js"></script>
+<script src="./public/js/departamentos/departamentos.js"></script>

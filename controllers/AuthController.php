@@ -8,34 +8,33 @@ class AuthController {
         // Inicia la sesión si no está iniciada
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        // Obtiene los valores de email y password del formulario, con limpieza básica
-        $email = trim($_POST['email'] ?? ''); // Elimina espacios en blanco al inicio y final
-        $password = $_POST['passwd'] ?? ''; // Recupera la contraseña
+        // Obtiene el valor del identificador (email o alias) y la contraseña del formulario
+        $identifier = trim($_POST['email'] ?? ''); // Podrías renombrar el campo en el formulario a 'identifier' si quieres, pero si mantienes 'email' funciona igual
+        $password = $_POST['passwd'] ?? '';
 
         // Verifica que ambos campos estén completos
-        if (empty($email) || empty($password)) {
-            $_SESSION['error'] = 'Debes completar todos los campos.';
-            header('Location: ' . BASE_URL . '/login'); // Redirige al login si faltan datos
+        if (empty($identifier) || empty($password)) {
+            $_SESSION['error'] = 'Debes completar todos los campos';
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
         // Instancia el modelo de autenticación
         $auth = new Auth();
-        // Intenta autenticar al usuario con los datos proporcionados
-        $user = $auth->authenticate($email, $password);
+        // Intenta autenticar al usuario con email o alias
+        $user = $auth->authenticate($identifier, $password);
 
-        // Si el usuario existe y es válido
         if ($user) {
-            $this->iniciarSesion($user, false); // Inicia sesión guardando los datos en $_SESSION
-            header('Location: ' . BASE_URL . '/usuarios_crear'); // Redirige al login
+            $this->iniciarSesion($user, false);
+            header('Location: ' . BASE_URL . '/inicio');
         } else {
-            // Si falla la autenticación, muestra un mensaje de error
-            $_SESSION['error'] = 'Correo o contraseña incorrectos.';
-            header('Location: ' . BASE_URL . '/login'); // Redirige al login
+            $_SESSION['error'] = 'Datos incorrectos';
+            header('Location: ' . BASE_URL . '/login');
         }
 
         exit;
     }
+
 
     public function logout() {
         // Inicia la sesión si no está iniciada y luego la destruye
@@ -51,7 +50,14 @@ class AuthController {
         $_SESSION['user'] = $user;
         $_SESSION['id'] = $user['id']; // ID del usuario
         $_SESSION['nombre'] = $user['nombre']; // nombre del usuario
+        $_SESSION['foto'] = $user['foto']; // nombre del usuario
         $_SESSION['success'] = 'Bienvenido, ' . htmlspecialchars($user['nombre'] ?? ''); // Mensaje de bienvenida
+
+        //Cargar ejercicio predeterminado si existe
+        if (!empty($user['ejercicio_predeterminado'])) {
+            $_SESSION['ejercicio'] = (int) $user['ejercicio_predeterminado'];
+        }
+
         session_write_close(); // Finaliza la escritura de sesión para liberar el bloqueo de sesión
     }
 }

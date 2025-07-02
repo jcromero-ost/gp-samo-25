@@ -43,6 +43,15 @@ class LineasPedidoController {
         // Indica que la respuesta será en formato JSON
         header('Content-Type: application/json');
 
+        foreach ($lineas as &$linea) {
+            foreach ($linea as $campo => &$valor) {
+                if (!mb_check_encoding($valor, 'UTF-8')) {
+                    error_log("Error de codificación en línea con CLAPED=$claped, campo=$campo");
+                    $valor = ''; // o intenta convertir: $valor = mb_convert_encoding($valor, 'UTF-8', 'CP1252');
+                }
+            }
+        }
+
         // Devuelve los datos de las líneas del pedido y el total en formato JSON
         echo json_encode([
             'data' => $lineas,

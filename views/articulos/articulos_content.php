@@ -5,4 +5,4 @@
 </div>
 
 <script src="./public/js/articulos/articulos_ver_materias.js"></script>
-<script src="./public/js/articulos/articulos_paginacion.js"></script>
+<script src="./public/js/articulos/articulos.js"></script>

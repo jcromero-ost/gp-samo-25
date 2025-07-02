@@ -11,26 +11,21 @@ class Auth {
     }
 
     // Método que verifica si el usuario existe y la contraseña es válida
-    public function authenticate($email, $password) {
-        // Prepara una consulta segura (evita SQL Injection)
-        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE email = :email LIMIT 1");
-        // Asocia el valor del email al parámetro :email
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->execute(); // Ejecuta la consulta
+    public function authenticate($identifier, $password) {
+        // Prepara una consulta segura para buscar por email o alias
+        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE email = :identifier OR alias = :identifier LIMIT 1");
+        // Asocia el valor del identificador (email o alias) al parámetro :identifier
+        $stmt->bindParam(':identifier', $identifier, PDO::PARAM_STR);
+        $stmt->execute();
 
-        // Obtiene el primer (y único) registro coincidente como un array asociativo
+        // Obtiene el primer registro coincidente
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Validación básica (actualmente solo verifica que haya usuario y contraseña no vacía)
-        if ($user && $password) {
-            return $user; // Retorna los datos del usuario si se encuentra y hay password (aunque no la verifica aún)
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
         }
 
-        // forma segura de verificar contraseñas con hash
-        // if ($user && password_verify($password, $user['password'])) {
-        //     return $user; // Retorna los datos si la contraseña en texto plano coincide con el hash
-        // }
-
-        return false; // Retorna false si el usuario no se encuentra o la contraseña no coincide
+        return false;
     }
+
 }

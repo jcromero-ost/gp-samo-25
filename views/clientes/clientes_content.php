@@ -4,4 +4,4 @@
   <div id="clientes-container"></div>
 </div>
 
-<script src="./public/js/clientes/clientes_paginacion.js"></script>
+<script src="./public/js/clientes/clientes.js"></script>

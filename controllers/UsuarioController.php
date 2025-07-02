@@ -28,7 +28,7 @@ class UsuarioController {
             // Validacion de contraseña
             if ($password !== $confirm_password) {
                 $_SESSION['error'] = 'Las contraseñas no coinciden.';
-                header('Location: /crear_usuario');
+                header('Location:' . BASE_URL . '/usuarios_crear');
                 exit;
             }
 
@@ -36,6 +36,15 @@ class UsuarioController {
             if (empty($nombre) || empty($email) || empty($password) || empty($alias) || empty($telefono) || empty($departamento_id)) {
                 $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
                 header('Location:' . BASE_URL . '/usuarios_crear');
+                exit;
+            }
+
+
+            // Verificar si el email ya está registrado
+            $usuario = new Usuario();
+            if ($usuario->comprobarEmail($email)) {
+                $_SESSION['error'] = 'El correo ya está registrado';
+                header('Location: ' . BASE_URL . '/usuarios_crear');
                 exit;
             }
 
@@ -77,18 +86,18 @@ class UsuarioController {
         // Solo procesa si la solicitud es por POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
-            $nombre = $_POST['nombre'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $alias = $_POST['alias'] ?? '';
-            $telefono = $_POST['telefono'] ?? '';
-            $departamento_id = $_POST['departamento_id'] ?? '';
+            $nombre = $_POST['edit_nombre'] ?? '';
+            $email = $_POST['edit_email'] ?? '';
+            $alias = $_POST['edit_alias'] ?? '';
+            $telefono = $_POST['edit_telefono'] ?? '';
+            $departamento_id = $_POST['edit_departamento_id'] ?? '';
             $id = $_POST['id'];
 
-            // Verifica que todos los campos requeridos estén completos
-            if (empty($nombre) || empty($email) || empty($alias) || empty($telefono) || empty($departamento_id)) {
-                $_SESSION['error'] = 'Todos los campos obligatorios deben completarse.';
-                header('Location: /usuarios_crear');
-                exit;
+            // Procesar imagen recortada en base64
+            if (!empty($_POST['edit_foto_recortada'])) {
+                $foto = $_POST['edit_foto_recortada']; // Base64 completa
+            } else {
+                $foto = 'default.jpeg'; // O podrías guardar null
             }
 
             // Actualiza un usuario usando el modelo Usuario
@@ -99,17 +108,21 @@ class UsuarioController {
                 'alias' => $alias,
                 'telefono' => $telefono,
                 'departamento_id' => $departamento_id,
+                'foto' => $foto,
                 'id' => $id
             ]);
 
-            // Mensaje de éxito y redirección
+            // Si el usuario editado es igual al logueado
+            if ($_SESSION['id'] == $id) {
+                $_SESSION['foto'] = $foto; // Guarda la imagen en la session
+            }
             $_SESSION['success'] = 'Usuario actualizado correctamente.';
-            header('Location: ' . BASE_URL . '/usuarios_crear');
+            header('Location: ' . BASE_URL . '/usuarios');
             exit;
         }
 
         // Si no es POST, redirige a la página de creación
-        header('Location: ' . BASE_URL . '/usuarios_crear');
+        header('Location: ' . BASE_URL . '/usuarios');
         exit;
     }
 
@@ -138,4 +151,131 @@ class UsuarioController {
         header('Location: ' . BASE_URL . '/usuarios');
         exit;
     }
+
+    // Método para actualizar tu perfil
+    public function update_perfil() {
+        session_start(); // Inicia o reanuda la sesión (necesario para usar $_SESSION)
+
+        // Solo procesa si la solicitud es por POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Obtiene los datos enviados por el formulario, con valores por defecto si no existen
+            $nombre = $_POST['edit_nombre'] ?? '';
+            $alias = $_POST['edit_alias'] ?? '';
+            $email = $_POST['edit_email'] ?? '';
+            $telefono = $_POST['edit_telefono'] ?? '';
+            $id = $_POST['id'];
+
+            // Actualiza un usuario usando el modelo Usuario
+            $usuario = new Usuario();
+            $usuario->update_perfil([
+                'nombre' => $nombre,
+                'email' => $email,
+                'alias' => $alias,
+                'telefono' => $telefono,
+                'id' => $id
+            ]);
+
+            $_SESSION['nombre'] = $nombre;
+            $_SESSION['success'] = 'Perfil actualizado correctamente.';
+            header('Location: ' . BASE_URL . '/perfil_editar');
+            exit;
+        }
+
+        // Si no es POST, redirige a la página de creación
+        header('Location: ' . BASE_URL . '/perfil_editar');
+        exit;
+    }
+
+    // Método para actualizar la foto de perfil
+    public function update_perfil_foto() {
+        session_start(); // Inicia o reanuda la sesión
+
+        // Solo procesa si la solicitud es por POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? '';
+            $foto = $_POST['foto_base64'] ?? '';
+
+            // Si no hay foto, se asigna una imagen por defecto
+            if (empty($foto)) {
+                $foto = 'default.jpeg';
+            }
+
+            // Actualiza la foto del usuario usando el modelo Usuario
+            $usuario = new Usuario();
+            $actualizado = $usuario->update_foto([
+                'id' => $id,
+                'foto' => $foto
+            ]);
+
+            if ($actualizado) {
+                $_SESSION['foto'] = $foto;
+                $_SESSION['success'] = 'Foto de perfil actualizada correctamente.';
+            } else {
+                $_SESSION['error'] = 'Error al actualizar la foto de perfil.';
+            }
+
+            header('Location: ' . BASE_URL . '/perfil_editar');
+            exit;
+        }
+
+        // Si no es POST, redirige a la página del perfil
+        header('Location: ' . BASE_URL . '/perfil_editar');
+        exit;
+    }
+
+    // Método para actualizar la contraseña del perfil
+    public function update_password() {
+        session_start(); // Inicia o reanuda la sesión
+
+        // Solo procesa si la solicitud es por POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? '';
+            $password = $_POST['new_password'] ?? '';
+            $passwordConfirm = $_POST['new_password_confirm'] ?? '';
+
+            // Validaciones básicas
+            if (empty($id)) {
+                $_SESSION['error'] = 'ID de usuario faltante.';
+                header('Location: ' . BASE_URL . '/perfil_editar');
+                exit;
+            }
+
+            if (empty($password) || empty($passwordConfirm)) {
+                $_SESSION['error'] = 'Debe ingresar ambas contraseñas.';
+                header('Location: ' . BASE_URL . '/perfil_editar');
+                exit;
+            }
+
+            if ($password !== $passwordConfirm) {
+                $_SESSION['error'] = 'Las contraseñas no coinciden.';
+                header('Location: ' . BASE_URL . '/perfil_editar');
+                exit;
+            }
+
+            // Hashea la contraseña
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+            // Actualiza la contraseña usando el modelo Usuario
+            $usuario = new Usuario();
+            $actualizado = $usuario->update_password([
+                'id' => $id,
+                'password' => $passwordHash
+            ]);
+
+            if ($actualizado) {
+                $_SESSION['success'] = 'Contraseña actualizada correctamente.';
+            } else {
+                $_SESSION['error'] = 'Error al actualizar la contraseña.';
+            }
+
+            header('Location: ' . BASE_URL . '/perfil_editar');
+            exit;
+        }
+
+        // Si no es POST, redirige
+        header('Location: ' . BASE_URL . '/perfil_editar');
+        exit;
+    }
+
+
 }

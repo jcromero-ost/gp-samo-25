@@ -27,79 +27,85 @@ class Escandallo {
     }
 
     public function getMateriasPrimasConDatosDelArticulo($codigoPadre) {
-        // 1. Obtener códigos hijos desde la DB MySQL
-        $stmt = $this->db->prepare("SELECT codigo_articulo FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
+        // 1. Obtener códigos hijos Y cantidades desde la DB MySQL
+        $stmt = $this->db->prepare("SELECT codigo_articulo, cantidad FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
         $stmt->execute(['codigoPadre' => $codigoPadre]);
-        $codigosHijos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (empty($codigosHijos)) {
+        if (empty($filas)) {
             return [];
         }
 
-        // 2. Instancia de Articulo para filtrar con esos códigos
+        // 2. Extraer códigos y mapear cantidades
+        $codigosHijos = array_column($filas, 'codigo_articulo');
+        $cantidades = [];
+        foreach ($filas as $fila) {
+            $cantidades[$fila['codigo_articulo']] = $fila['cantidad'];
+        }
+
+        // 3. Obtener artículos desde el modelo Articulo
         require_once __DIR__ . '/Articulo.php';
         $articuloModel = new Articulo();
-
-        // 3. Obtener artículos con datos completos
         $materias = $articuloModel->getArticulosPorCodigos($codigosHijos);
+
+        // 4. Agregar cantidad al resultado final
+foreach ($materias as &$materia) {
+    $codigo = trim($materia['CODIGO'] ?? '');
+    $materia['CANTIDAD'] = $cantidades[$codigo] ?? 0;
+}
+
 
         return $materias;
     }
 
-public function countMateriasPrimas($codigoPadre) {
-    $stmt = $this->db->prepare("SELECT COUNT(*) FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
-    $stmt->execute(['codigoPadre' => $codigoPadre]);
-    return (int)$stmt->fetchColumn();
-}
+
+    public function countMateriasPrimas($codigoPadre) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
+        $stmt->execute(['codigoPadre' => $codigoPadre]);
+        return (int)$stmt->fetchColumn();
+    }
 
 
     // Método para crear un nuevo escandallo
-    public function create($data) {    
-        // Prepara la consulta SQL de inserción
+    public function create($data) {
+        // Verifica si ya existe el registro con ese padre y artículo
+        $check = $this->db->prepare("
+            SELECT COUNT(*) as total FROM escandallos 
+            WHERE codigo_articulo_padre = :codigo_articulo_padre 
+            AND codigo_articulo = :codigo_articulo
+        ");
+        $check->bindParam(':codigo_articulo_padre', $data['codigo_articulo_padre']);
+        $check->bindParam(':codigo_articulo', $data['codigo_articulo']);
+        $check->execute();
+
+        $result = $check->fetch(PDO::FETCH_ASSOC);
+        if ($result['total'] > 0) {
+            // Ya existe, no insertar
+            return false;
+        }
+
+        // Si no existe, inserta el nuevo escandallo
         $stmt = $this->db->prepare("
             INSERT INTO escandallos 
-                (codigo_articulo_padre, codigo_articulo)
+                (codigo_articulo_padre, codigo_articulo, cantidad)
             VALUES 
-                (:codigo_articulo_padre, :codigo_articulo)
+                (:codigo_articulo_padre, :codigo_articulo, :cantidad)
         ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
         $stmt->bindParam(':codigo_articulo_padre', $data['codigo_articulo_padre']);
         $stmt->bindParam(':codigo_articulo', $data['codigo_articulo']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
+        $stmt->bindParam(':cantidad', $data['cantidad']);
         return $stmt->execute();
     }
 
-    
-    // Método para actualizar un usuario
-    public function update($data) {    
-        // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("
-            UPDATE usuarios 
-                SET nombre = :nombre, email= :email, alias= :alias, telefono= :telefono, departamento_id= :departamento_id
-            WHERE id= :id
-        ");
-    
-        // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':nombre', $data['nombre']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':alias', $data['alias']);
-        $stmt->bindParam(':telefono', $data['telefono']);
-        $stmt->bindParam(':departamento_id', $data['departamento_id']);
-        $stmt->bindParam(':id', $data['id']);
-    
-        // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
-        return $stmt->execute();
-    }
 
     // Método para borrar un usuario
     public function delete($data) {    
         // Prepara la consulta SQL de inserción
-        $stmt = $this->db->prepare("DELETE FROM usuarios WHERE id= :id");
+        $stmt = $this->db->prepare("DELETE FROM escandallos WHERE codigo_articulo_padre = :codigo_padre AND codigo_articulo = :codigo_articulo");
     
         // Asocia los parámetros con los valores del array $data (protege contra inyecciones SQL)
-        $stmt->bindParam(':id', $data['id']);
+        $stmt->bindParam(':codigo_padre', $data['codigo_articulo_padre']);
+        $stmt->bindParam(':codigo_articulo', $data['codigo_articulo']);
     
         // Ejecuta la consulta y devuelve true si tuvo éxito, false si falló
         return $stmt->execute();

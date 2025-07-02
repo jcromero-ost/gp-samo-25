@@ -35,3 +35,17 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
     <?php unset($_SESSION['mensaje']); ?>
 <?php endif; ?>
+<script>
+  // Esperar a que el DOM esté completamente cargado
+  document.addEventListener('DOMContentLoaded', function () {
+    const alerts = document.querySelectorAll('.alert');
+    
+    alerts.forEach(function (alert) {
+      // Esperar 3 segundos y luego cerrarlas
+      setTimeout(function () {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+        bsAlert.close();
+      }, 3000); // 3000 ms = 3 segundos
+    });
+  });
+</script>

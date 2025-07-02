@@ -1,5 +1,10 @@
 <div class="m-4">
-  <h2 class="titulo mb-4">Lista de usuarios</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="titulo">Lista de usuarios</h2>
+    <a href="<?= BASE_URL ?>/usuarios_crear" class="btn btn-success">
+      <i class="bi bi-person-plus-fill"></i> Crear nuevo usuario
+    </a>
+  </div>
 
   <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
     <table class="table table-hover align-middle mb-0">
@@ -7,7 +12,7 @@
         <tr>
           <th>Usuario</th>
           <th>Email</th>
-          <th>Alias</th>
+          <th>Nombre de usuario</th>
           <th>Teléfono</th>
           <th>Fecha de creación</th>
           <th>Departamento</th>
@@ -35,10 +40,12 @@
               <td><?= htmlspecialchars($usuario['email']) ?></td>
               <td><?= htmlspecialchars($usuario['alias']) ?></td>
               <td><?= htmlspecialchars($usuario['telefono']) ?></td>
-              <td><?= htmlspecialchars($usuario['fecha_creacion']) ?></td>
+              <td>
+                <?= (new DateTime($usuario['fecha_creacion']))->format('d-m-Y') ?>
+              </td>
               <td><?= htmlspecialchars($usuario['nombre_departamento']) ?></td>
               <td class="text-center">
-                <button type="button" class="btn btn-sm btn-warning btn-editar" data-id="<?= $usuario['id'] ?>" title="Editar">
+                <button type="button" class="btn btn-sm btn-warning btn-editar" data-usuario='<?= json_encode($usuario, JSON_HEX_APOS | JSON_UNESCAPED_UNICODE) ?>' data-id="<?= $usuario['id'] ?>" title="Editar">
                   <i class="bi bi-pencil-square"></i>
                 </button>
                 <button type="button" class="btn btn-sm btn-danger btn-eliminar" data-id="<?= $usuario['id'] ?>" title="Eliminar">
@@ -57,6 +64,12 @@
   </div>
 </div>
 
+<!-- Modal editar usuario -->
+<?php include_once __DIR__ . '../../components/modals/usuarios/usuarios_editar_modal.php'; ?>
+
 <!-- Modal eliminar usuario -->
 <?php include_once __DIR__ . '../../components/modals/usuarios/usuarios_eliminar_modal.php'; ?>
+
+<script src="./public/js/usuarios/cropper_util.js"></script>
+<script src="./public/js/usuarios/usuarios_editar.js"></script>
 <script src="./public/js/usuarios/usuarios_eliminar.js"></script>

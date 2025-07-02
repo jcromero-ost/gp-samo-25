@@ -22,4 +22,19 @@ class Ejercicio {
 
         return $ejercicios;
     } 
+
+    public function getAllEjerciciosPaginados($offset, $limit) {
+        $ejercicios = $this->reader->getRecords($offset, $limit);
+
+        // Ordenar por 'CLAEJE' descendente si el campo existe
+        usort($ejercicios, function ($a, $b) {
+            return strcmp($b['CLAEJE'], $a['CLAEJE']);
+        });
+
+        return $ejercicios;
+    } 
+
+        public function getTotal() {
+        return $this->reader->getRecordCount();
+    }
 }

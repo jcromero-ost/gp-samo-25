@@ -8,8 +8,7 @@ class Articulo {
 
     // Constructor: inicializa el lector DBF apuntando al archivo 'articulo.dbf'
     public function __construct() {
-        $ruta = "C:\\SAMO\\ClasGes6SP26\\DATOS\\articulo.dbf";
-        $this->reader = new DBFReader($ruta);
+        $this->reader = new DBFReader('C:\\SAMO\\ClasGes6SP26\\DATOS\\articulo.dbf', 'CP850');
     }
 
     // Método para obtener todos los artículos con paginación (offset y limit)

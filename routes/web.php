@@ -26,6 +26,15 @@ $router->get('/login', function () {
 });
 $router->post('/login', 'AuthController@login'); //Ruta para el login
 
+// Ruta para la página de lista de usuarios
+$router->get('/perfil_editar', function () {
+    // Carga la vista de crear usuarios
+    require __DIR__ . '/../views/perfil/perfil_editar.php';
+});
+$router->post('/perfil_editar_datos', 'UsuarioController@update_perfil'); //Ruta para editar el perfil
+$router->post('/perfil_editar_foto', 'UsuarioController@update_perfil_foto'); //Ruta para editar la foto del perfil
+$router->post('/perfil_editar_password', 'UsuarioController@update_password'); //Ruta para editar la foto del perfil
+
 // Ruta para DESLOGUEARTE
 $router->get('/logout', function () {
     // Carga la vista de login
@@ -33,6 +42,11 @@ $router->get('/logout', function () {
 });
 $router->post('/logout', 'AuthController@logout'); //Ruta para el logout
 
+// Ruta para la página de inicio
+$router->get('/inicio', function () {
+    // Carga la vista de inicio
+    require __DIR__ . '/../views/inicio/inicio.php';
+});
 
 // Ruta para la página de crear usuario
 $router->get('/usuarios_crear', function () {
@@ -40,6 +54,7 @@ $router->get('/usuarios_crear', function () {
     require __DIR__ . '/../views/usuarios/usuarios_crear.php';
 });
 $router->post('/usuarios_crear', 'UsuarioController@store'); //Ruta para crear un usuario
+$router->post('/usuarios_editar', 'UsuarioController@update'); //Ruta para editar un usuario
 $router->post('/usuarios_eliminar', 'UsuarioController@delete'); //Ruta para eliminar un usuario
 
 // Ruta para la página de lista de usuarios
@@ -55,6 +70,12 @@ $router->get('/departamentos', function () {
 });
 $router->post('/departamentos_crear', 'DepartamentoController@store'); //Ruta para crear un departamento
 $router->post('/departamentos_eliminar', 'DepartamentoController@delete'); //Ruta para eliminar un departamento
+
+// Ruta para la página de lista de ejercicios
+$router->get('/ejercicios', function () {
+    // Carga la vista de ejercicios
+    require __DIR__ . '/../views/ejercicios/ejercicios.php';
+});
 
 // Ruta para la página de lista de clientes
 $router->get('/clientes', function () {
@@ -92,6 +113,7 @@ $router->get('/escandallos_crear', function () {
 });
 $router->post('/obtener_materias_por_codigo', 'EscandalloController@obtenerMateriasPorCodigoPadre'); //Ruta para visualizar los escandallos por codigo padre
 $router->post('/escandallos_crear', 'EscandalloController@store'); //Ruta para crear un escandallo
+$router->post('/escandallos_eliminar', 'EscandalloController@delete'); //Ruta para crear un escandallo
 
 
 // Ruta para la página de lista de pedidos
