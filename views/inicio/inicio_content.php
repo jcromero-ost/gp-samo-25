@@ -40,47 +40,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Pedidos -->
-    <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-lg h-100 border-primary-custom">
-        <div class="card-body text-center">
-          <i class="bi bi-receipt" style="font-size: 5rem;"></i>
-          <h4 class="fw-bold mt-3">Pedidos</h4>
-          <div class="d-grid gap-2 mt-4">
-            <a href="<?= BASE_URL ?>/pedidos" class="btn btn-primary-custom btn-lg">Ver Pedidos</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pedidos -->
-    <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-lg h-100 border-primary-custom">
-        <div class="card-body text-center">
-          <i class="bi bi-receipt" style="font-size: 5rem;"></i>
-          <h4 class="fw-bold mt-3">Pedidos</h4>
-          <div class="d-grid gap-2 mt-4">
-            <a href="<?= BASE_URL ?>/pedidos" class="btn btn-primary-custom btn-lg">Ver Pedidos</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-        <!-- Pedidos -->
-    <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-lg h-100 border-primary-custom">
-        <div class="card-body text-center">
-          <i class="bi bi-receipt" style="font-size: 5rem;"></i>
-          <h4 class="fw-bold mt-3">Pedidos</h4>
-          <div class="d-grid gap-2 mt-4">
-            <a href="<?= BASE_URL ?>/pedidos" class="btn btn-primary-custom btn-lg">Ver Pedidos</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    
+    </div>    
   </div>
 </div>
