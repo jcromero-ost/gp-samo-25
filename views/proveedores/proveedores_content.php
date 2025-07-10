@@ -1,5 +1,5 @@
 <div class="m-4">
-  <h2 class="titulo mb-4">Artículos</h2>
+  <h2 class="titulo mb-4">Proveedores</h2>
 
   <div>
     <!-- Filtros -->
@@ -9,12 +9,17 @@
         <input type="text" id="filtrar_codigo" class="form-control">
       </div>
 
-      <div class="col-md-5">
+      <div class="col-md-4">
         <label for="filtrar_nombre" class="form-label">Nombre</label>
         <input type="text" id="filtrar_nombre" class="form-control">
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-3">
+        <label for="filtrar_telefono" class="form-label">Telefono</label>
+        <input type="text" id="filtrar_telefono" class="form-control">
+      </div>
+
+      <div class="col-md-2">
         <label for="cantidad" class="form-label">Registros por página</label>
         <select id="cantidad" class="form-select">
           <option value="10" selected>10</option>
@@ -31,8 +36,8 @@
       </div>
     </form>
   </div>
-  
-  <div id="articulos-container"></div>
+
+  <div id="proveedores-container"></div>
 </div>
 
-<script type="module" src="./public/js/articulos/articulos.js"></script>
+<script src="./public/js/proveedores/proveedores.js"></script>

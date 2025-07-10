@@ -83,6 +83,12 @@ $router->get('/clientes', function () {
     require __DIR__ . '/../views/clientes/clientes.php';
 });
 
+// Ruta para la página de lista de proveedores
+$router->get('/proveedores', function () {
+    // Carga la vista de clientes
+    require __DIR__ . '/../views/proveedores/proveedores.php';
+});
+
 // Ruta para la página de crear clientes
 $router->get('/clientes_crear', function () {
     // Carga la vista de clientes
@@ -98,6 +104,8 @@ $router->get('/articulos', function () {
 });
 $router->post('/articulos_ver_materias', 'MateriasPrimasController@ver_materias');
 $router->post('/articulos_sugerencias', 'ArticuloController@buscar');
+$router->post('/articulos_ver_colores', 'ColoresController@ver_colores');
+$router->post('/obtener_colores_por_codigo', 'ColoresController@obtenerColoresPorCodigoPadre'); //Ruta para visualizar los escandallos por codigo padre
 
 // Ruta para la página de crear un articulo
 $router->get('/articulos_crear', function () {
@@ -112,6 +120,7 @@ $router->get('/escandallos_crear', function () {
     require __DIR__ . '/../views/escandallos/escandallos_crear.php';
 });
 $router->post('/obtener_materias_por_codigo', 'EscandalloController@obtenerMateriasPorCodigoPadre'); //Ruta para visualizar los escandallos por codigo padre
+$router->post('/obtener_materias_por_codigo_paginadas', 'EscandalloController@obtenerMateriasPorCodigoPadrePaginadas'); //Ruta para visualizar los escandallos por codigo padre
 $router->post('/escandallos_crear', 'EscandalloController@store'); //Ruta para crear un escandallo
 $router->post('/escandallos_eliminar', 'EscandalloController@delete'); //Ruta para crear un escandallo
 

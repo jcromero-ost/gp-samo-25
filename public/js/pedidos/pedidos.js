@@ -1,20 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   function cargarPedidosPagina(page = 1) {
-  const ejercicio = document.getElementById('ejercicio')?.value || '';
-  const url = `./pedidos?page=${page}&ejercicio=${encodeURIComponent(ejercicio)}`;
+const ejercicio = document.getElementById('ejercicio')?.value || '';
+const orden = document.getElementById('orden_fabricacion_select')?.value || '';
+
+const url = `./pedidos?page=${page}&ejercicio=${encodeURIComponent(ejercicio)}&orden_fabricacion_select=${encodeURIComponent(orden)}`;
+
 
   const container = document.getElementById('pedidos-container');
   if (!container) return;
 
-  /*
-  container.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="d-flex align-items-center gap-3">
-        <img src="./public/images/maquina_coser_2.gif" width="550" alt="Cargando...">
-      </div>
-    </div>
-  `;
-*/
+      /*
+      container.innerHTML = `
+        <div class="d-flex justify-content-center align-items-center py-5">
+          <div class="d-flex align-items-center gap-3">
+            <img src="./public/images/maquina_coser_2.gif" width="550" alt="Cargando...">
+          </div>
+        </div>
+      `;
+    */
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then(res => res.json())
       .then(data => {
@@ -26,13 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <table class="table table-hover align-middle mb-0">
             <thead class="table-dark">
               <tr>
-                <th>NUMERO</th>
-                <th>NOMBRE CLIENTE</th>
-                <th>DIRECCION CLIENTE</th>
-                <th>LOCALIDAD</th>
-                <th>EMPRESA</th>
-                <th>EJERCICIO</th>
-                <th>FECHA</th>
+                <th>Número</th>
+                <th>Nombre del cliente</th>
+                <th>Dirección del cliente</th>
+                <th>Localidad del cliente</th>
+                <th>Fecha</th>
                 <th class="text-center">Líneas</th>
               </tr>
             </thead>
@@ -40,45 +41,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.pedidos.length > 0) {
               data.pedidos.forEach((pedido, i) => {
-                html += `
-                  <tr>
-                    <td>${pedido.NUMERO}</td>
-                    <td>${pedido.NOMCLI}</td>
-                    <td>${pedido.DIRCLI}</td>
-                    <td>${pedido.LOCCLI}</td>
-                    <td>${pedido.CLAEMP}</td>
-                    <td>${pedido.CLAEJE}</td>
-                    <td>${pedido.FECHA}</td>
-                    <td class="text-center">
-                      <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapseLines${i}"
-                        aria-expanded="false"
-                        aria-controls="collapseLines${i}">
-                        Ver líneas
-                      </button>
+  const materiasCount = pedido.materias_count || 0;
 
-                      <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapseLines${i}"
-                        aria-expanded="true"
-                        aria-controls="collapseLines${i}">
-                        Ocultar líneas
-                      </button>
-                    </td>
-                  </tr>
-                  <tr class="collapse" id="collapseLines${i}">
-                    <td colspan="6">
-                      <div class="p-2">
-                        <div class="mt-2 lineas-content" data-claped="${pedido.CLAPED}" data-loaded="false"></div>
-                      </div>
-                    </td>
-                  </tr>`;
-              });
+  html += `
+    <tr>
+      <td>${pedido.NUMERO}</td>
+      <td>${pedido.NOMCLI}</td>
+      <td>${pedido.DIRCLI}</td>
+      <td>${pedido.LOCCLI}</td>
+      <td>${pedido.FECHA}</td>
+      <td class="text-center">`;
+
+  if (materiasCount > 0) {
+    html += `
+        <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapseLines${i}"
+          aria-expanded="false"
+          aria-controls="collapseLines${i}">
+          <i class="bi bi-caret-down-square me-2"></i>Ver líneas (${materiasCount})
+        </button>
+        <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapseLines${i}"
+          aria-expanded="true"
+          aria-controls="collapseLines${i}">
+          <i class="bi bi-caret-up-square me-2"></i>Ocultar líneas
+        </button>`;
+  } else {
+    html += `
+        <button class="btn btn-sm btn-danger" type="button" disabled>
+          No tiene líneas
+        </button>`;
+  }
+
+  html += `
+      </td>
+    </tr>
+    <tr class="collapse" id="collapseLines${i}">
+      <td colspan="8">
+        <div class="p-2">
+          <div class="mt-2 lineas-content" data-claped="${pedido.CLAPED}" data-loaded="false"></div>
+        </div>
+      </td>
+    </tr>`;
+});
+
             } else {
               html += `
                 <tr>
-                  <td colspan="6" class="text-center py-4">No hay pedidos para el ejercicio seleccionado</td>
+                  <td colspan="8" class="text-center py-4">No hay pedidos para el ejercicio seleccionado</td>
                 </tr>`;
             }
 
@@ -124,7 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (container.dataset.loaded === 'true') return;
 
         const claped = container.dataset.claped;
-        window.cargarLineas(claped, container, 1, 5);
+        const orden = document.getElementById('orden_fabricacion_select')?.value || '';
+        window.cargarLineas(claped, container, 1, 5, orden);
+
       }, { once: true });
     });
   }

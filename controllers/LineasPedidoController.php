@@ -11,6 +11,8 @@ class LineasPedidoController {
     // Método para visualizar las líneas de un pedido
     public function ver_lineas()
     {
+        $orden = $_POST['orden_fabricacion'] ?? '';
+
         // Verifica que se haya enviado el ID del pedido (CLAPED) por POST
         if (!isset($_POST['CLAPED'])) {
             // Si no se envía, devuelve un error HTTP 400 (Bad Request) con un mensaje en formato JSON

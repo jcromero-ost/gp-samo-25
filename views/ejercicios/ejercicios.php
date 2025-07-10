@@ -6,11 +6,40 @@ require_once __DIR__ . '/../../models/Ejercicio.php';
 // Crea una instancia del modelo Ejercicio
 $ejercicioModel = new Ejercicio();
 
+// Recoge filtros desde GET
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$limit = isset($_GET['cantidad']) ? intval($_GET['cantidad']) : 10;
+$offset = ($page - 1) * $limit;
+
+$filtros = [
+    'codigo' => $_GET['codigo'] ?? '',
+    'nombre' => $_GET['nombre'] ?? ''
+];
+
+// Si el modelo aún no tiene estos métodos, agrégalos (ver más abajo)
+$ejercicios = $ejercicioModel->getEjerciciosFiltrados($filtros, $offset, $limit);
+$totalRegistros = $ejercicioModel->getTotalFiltrado($filtros);
+$totalPaginas = max(1, ceil($totalRegistros / $limit));
+
+if (
+    !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'ejercicios' => $ejercicios,
+        'page' => $page,
+        'totalPaginas' => $totalPaginas,
+    ]);
+    exit;
+}
+
+/* SIN FILTRADO
 // Obtiene el número de página desde la URL (GET), por defecto 1 si no se especifica
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
 // Define cuántos registros se mostrarán por página
-$limit = 15;
+$limit = 10;
 
 // Calcula el offset para la consulta SQL (desde qué registro comenzar)
 $offset = ($page - 1) * $limit;
@@ -38,6 +67,7 @@ if (
     ]);
     exit; // Termina la ejecución del script para no cargar la vista completa
 }
+*/
 
 // Define la ruta al archivo de contenido específico de la vista actual
 $view = __DIR__ . '/ejercicios_content.php';

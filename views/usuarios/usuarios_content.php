@@ -1,6 +1,6 @@
 <div class="m-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="titulo">Lista de usuarios</h2>
+    <h2 class="titulo">Usuarios</h2>
     <a href="<?= BASE_URL ?>/usuarios_crear" class="btn btn-success">
       <i class="bi bi-person-plus-fill"></i> Crear nuevo usuario
     </a>

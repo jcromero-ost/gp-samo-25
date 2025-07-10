@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../models/Pedido.php';
 
 $pedidoModel = new Pedido();
 
+
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
@@ -29,10 +30,12 @@ if (isset($_GET['ejercicio'])) {
 
 // Obtener el ejercicio activo desde la sesión
 $ejercicioSeleccionado = $_SESSION['ejercicio'] ?? null;
+$ordenFabricacion = $_GET['orden_fabricacion_select'] ?? null;
 
 // Aplicar filtro por ejercicio si está definido
 if ($ejercicioSeleccionado !== null) {
     $pedidos = $pedidoModel->getPedidosPorEjercicio($ejercicioSeleccionado, $offset, $limit);
+    $pedidos = $pedidoModel->getPedidosPorEjercicio($ejercicioSeleccionado, $offset, $limit, $ordenFabricacion);
     $totalRegistros = $pedidoModel->getTotalPorEjercicio($ejercicioSeleccionado);
 } else {
     $pedidos = $pedidoModel->getAllPedidos($offset, $limit);

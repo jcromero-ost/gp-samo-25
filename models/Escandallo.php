@@ -49,21 +49,49 @@ class Escandallo {
         $materias = $articuloModel->getArticulosPorCodigos($codigosHijos);
 
         // 4. Agregar cantidad al resultado final
-foreach ($materias as &$materia) {
-    $codigo = trim($materia['CODIGO'] ?? '');
-    $materia['CANTIDAD'] = $cantidades[$codigo] ?? 0;
-}
-
+        foreach ($materias as &$materia) {
+            $codigo = trim($materia['CODIGO'] ?? '');
+            $materia['CANTIDAD'] = $cantidades[$codigo] ?? 0;
+        }
 
         return $materias;
     }
 
+    // Obtener paginado
+    public function getMateriasPrimasConPaginacion($codigoPadre, $limit, $offset) {
+        $stmt = $this->db->prepare("SELECT codigo_articulo, cantidad FROM escandallos WHERE codigo_articulo_padre = :codigoPadre LIMIT :limit OFFSET :offset");
+        $stmt->bindValue(':codigoPadre', $codigoPadre, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($filas)) return [];
+
+        $codigosHijos = array_column($filas, 'codigo_articulo');
+        $cantidades = [];
+        foreach ($filas as $fila) {
+            $cantidades[$fila['codigo_articulo']] = $fila['cantidad'];
+        }
+
+        require_once __DIR__ . '/Articulo.php';
+        $articuloModel = new Articulo();
+        $materias = $articuloModel->getArticulosPorCodigos($codigosHijos);
+
+        foreach ($materias as &$materia) {
+            $codigo = trim($materia['CODIGO'] ?? '');
+            $materia['CANTIDAD'] = $cantidades[$codigo] ?? 0;
+        }
+
+        return $materias;
+    }
 
     public function countMateriasPrimas($codigoPadre) {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM escandallos WHERE codigo_articulo_padre = :codigoPadre");
         $stmt->execute(['codigoPadre' => $codigoPadre]);
         return (int)$stmt->fetchColumn();
     }
+
 
 
     // Método para crear un nuevo escandallo

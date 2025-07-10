@@ -1,8 +1,8 @@
 // Espera a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
   
-  // Función para cargar los clientes vía AJAX desde el servidor
-  function cargarClientesPagina(page = 1) {
+  // Función para cargar los proveedores vía AJAX desde el servidor
+  function cargarProveedoresPagina(page = 1) {
       // Obtener valores del formulario de filtros
       const codigo = document.getElementById('filtrar_codigo').value.trim();
       const nombre = document.getElementById('filtrar_nombre').value.trim();
@@ -18,38 +18,38 @@ document.addEventListener('DOMContentLoaded', () => {
           cantidad
       });
 
-    const url = `./clientes?${params.toString()}`; // Construye la URL con el número de página
+    const url = `./proveedores?${params.toString()}`; // Construye la URL con el número de página
 
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }) // Realiza una solicitud AJAX
       .then(res => res.json()) // Parsea la respuesta como JSON
       .then(data => {
-        const container = document.getElementById('clientes-container'); // Contenedor de los datos
+        const container = document.getElementById('proveedores-container'); // Contenedor de los datos
         if (!container) return; // Si no existe el contenedor, salir
 
-        // Comienza a construir el HTML de la tabla de clientes
+        // Comienza a construir el HTML de la tabla de proveedores
         let html = `
-      <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-dark">
-            <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Dirección</th>
-              <th>Localidad</th>
-              <th>Teléfono</th>
-            </tr>
-          </thead>
-          <tbody>`;
+        <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Localidad</th>
+                <th>Teléfono</th>
+              </tr>
+            </thead>
+            <tbody>`;
 
-        // Itera sobre los clientes recibidos y agrega filas a la tabla
-        data.clientes.forEach(cliente => {
+        // Itera sobre los proveedores recibidos y agrega filas a la tabla
+        data.proveedores.forEach(proveedor => {
           html += `
           <tr>
-            <td>${cliente.CODIGO}</td>
-            <td>${cliente.NOMBRE}</td>
-            <td>${cliente.DIRECCION ?? ''}</td>
-            <td>${cliente.LOCALIDAD ?? ''}</td>
-            <td>${cliente.TELEFONO ?? ''}</td>
+            <td>${proveedor.CODIGO}</td>
+            <td>${proveedor.NOMBRE}</td>
+            <td>${proveedor.DIRECCION}</td>
+            <td>${proveedor.LOCALIDAD}</td>
+            <td>${proveedor.TELEFONO}</td>
           </tr>`;
         });
 
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Agrega el componente de paginación
         html += `
-        <nav aria-label="Paginación clientes" class="mt-4">
+        <nav aria-label="Paginación proveedores" class="mt-4">
           <ul class="pagination justify-content-center">
             ${data.page > 1
               ? `<li class="page-item"><a href="#" class="page-link" style="background-color: #111; color: white; border-color: #333;" data-page="${data.page - 1}">Anterior</a></li>`
@@ -95,18 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(() => {
         // Muestra alerta si ocurre error en la carga de datos
-        alert('Error al cargar clientes.');
+        alert('Error al cargar proveedores');
       });
   }
 
   function inicializarEventosFiltros() {
-    document.getElementById('filtrar_codigo').addEventListener('input', () => cargarClientesPagina(1));
-    document.getElementById('filtrar_nombre').addEventListener('input', () => cargarClientesPagina(1));
-    document.getElementById('filtrar_telefono').addEventListener('input', () => cargarClientesPagina(1));
-    document.getElementById('cantidad').addEventListener('change', () => cargarClientesPagina(1));
+    document.getElementById('filtrar_codigo').addEventListener('input', () => cargarProveedoresPagina(1));
+    document.getElementById('filtrar_nombre').addEventListener('input', () => cargarProveedoresPagina(1));
+    document.getElementById('filtrar_telefono').addEventListener('input', () => cargarProveedoresPagina(1));
+    document.getElementById('cantidad').addEventListener('change', () => cargarProveedoresPagina(1));
   }
 
-  // Inicializa eventos de colapso de Bootstrap para líneas de clientes
+  // Inicializa eventos de colapso de Bootstrap para líneas de proveedores
   function inicializarEventosCollapse() {
     document.querySelectorAll('tr.collapse').forEach(collapseEl => {
       // Evita múltiples registros del mismo evento
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = collapseEl.querySelector('.lineas-content');
         if (container.dataset.loaded === 'true') return;
 
-        const claped = container.dataset.claped; // Código del cliente
+        const claped = container.dataset.claped; // Código del proveedor
         cargarLineas(claped, container, 1, 5); // Función que debe estar definida en otro archivo
       });
 
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Inicializa los botones de mostrar/ocultar líneas asociadas al cliente
+  // Inicializa los botones de mostrar/ocultar líneas asociadas al proveedor
   function inicializarToggleButtons() {
     const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
 
@@ -156,18 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Se asume que la función cargarLineas(claped, container, page, limit)
   // está definida en otro archivo JS cargado previamente
 
-  // Captura clics en enlaces de paginación dentro del contenedor de clientes
-  document.getElementById('clientes-container').addEventListener('click', e => {
+  // Captura clics en enlaces de paginación dentro del contenedor de proveedores
+  document.getElementById('proveedores-container').addEventListener('click', e => {
     if (e.target.matches('.page-link[data-page]')) {
       e.preventDefault(); // Previene comportamiento por defecto del enlace
       const page = parseInt(e.target.getAttribute('data-page'), 10); // Obtiene número de página
       if (page) {
-        cargarClientesPagina(page); // Llama a la función para cargar la nueva página
+        cargarProveedoresPagina(page); // Llama a la función para cargar la nueva página
       }
     }
   });
 
   // Carga inicial de la primera página al cargar el documento
-  cargarClientesPagina(1);
+  cargarProveedoresPagina(1);
   inicializarEventosFiltros();
 });

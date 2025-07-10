@@ -5,10 +5,52 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../models/Articulo.php';
 require_once __DIR__ . '/../../models/Escandallo.php';
+require_once __DIR__ . '/../../models/Colores.php';
 
 $articuloModel = new Articulo();
 $escandalloModel = new Escandallo();
+$coloresModel = new Colores();
 
+$filtros = [
+    'codigo' => $_GET['codigo'] ?? '',
+    'nombre' => $_GET['nombre'] ?? '',
+];
+
+$limit = isset($_GET['cantidad']) ? max(1, intval($_GET['cantidad'])) : 10;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+if (
+    !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+) {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $articulos = $articuloModel->getArticulosFiltrados($filtros, $offset, $limit);
+    $totalRegistros = $articuloModel->getTotalFiltrado($filtros);
+    $totalPaginas = max(1, ceil($totalRegistros / $limit));
+
+    // Añadir conteos
+    foreach ($articulos as &$articulo) {
+        $codigo = $articulo['CODIGO'];
+        $claart = $articulo['CLAART'];
+        $articulo['materias_count'] = $escandalloModel->countMateriasPrimas($codigo);
+        $articulo['colores_count'] = $coloresModel->countColores($claart);
+        //$articulo['articulos_sin_orden_count'] = $articuloModel->countArticulosSinOrden($claart);
+    }
+    unset($articulo);
+
+    echo json_encode([
+        'articulos' => $articulos,
+        'page' => $page,
+        'totalPaginas' => $totalPaginas,
+    ]);
+    exit;
+}
+
+
+
+/*
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
@@ -18,8 +60,9 @@ $articulos = $articuloModel->getAllArticulos($offset, $limit);
 // Aquí añadimos el conteo de materias primas para cada artículo
 foreach ($articulos as &$articulo) {
     $codigo = $articulo['CODIGO'];
-    // Llamamos a una función que solo cuenta las materias primas (ver más abajo)
+    $claart = $articulo['CLAART'];
     $articulo['materias_count'] = $escandalloModel->countMateriasPrimas($codigo);
+    $articulo['colores_count'] = $coloresModel->countColores($claart);
 }
 unset($articulo);
 
@@ -58,6 +101,6 @@ if (
     echo $json;
     exit;
 }
-
+*/
 $view = __DIR__ . '/articulos_content.php';
 include __DIR__ . '/../layout.php';

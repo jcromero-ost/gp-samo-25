@@ -1,154 +1,124 @@
 <?php
 // Incluye el archivo de conexión a la base de datos (presumiblemente contiene la clase DBFReader)
-require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/DatabaseLOCAL.php';
 
 // Definición de la clase Articulo, que se encarga de manejar operaciones sobre la tabla 'articulos'
 class Articulo {
-    private $reader; // Propiedad para manejar el lector de archivos DBF
+    private $db; // Propiedad para manejar el lector de archivos DBF
 
     // Constructor: inicializa el lector DBF apuntando al archivo 'articulo.dbf'
     public function __construct() {
-        $this->reader = new DBFReader('C:\\SAMO\\ClasGes6SP26\\DATOS\\articulo.dbf', 'CP850');
+        $this->db = DatabaseLOCAL::connect(); // Obtiene la conexión a la base de datos desde DatabaseLOCAL
     }
 
-    // Método para obtener todos los artículos con paginación (offset y limit)
-    public function getAllArticulos($offset = 0, $limit = 10) {
-        return $this->reader->getRecords($offset, $limit);
+    // Método para obtener todos los articulos ordenados por nombre ascendentemente
+    public function getAllArticulos($offset = 0, $limit = 15) {
+        $stmt = $this->db->prepare("SELECT * FROM cg_articulos ORDER BY CLAART ASC LIMIT :offset, :limit");
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Método para buscar artículos por código o nombre (búsqueda insensible a mayúsculas)
     public function buscarPorCodigoONombre($busqueda) {
-        $busqueda = mb_strtolower($busqueda); // Convierte la búsqueda a minúsculas
-        $todos = $this->reader->getRecords(); // Obtiene todos los registros
+        $busqueda = '%' . mb_strtolower($busqueda) . '%';
 
-        // Filtra los artículos cuyos códigos o nombres coincidan parcialmente
-        $coincidentes = array_filter($todos, function ($art) use ($busqueda) {
-            return (
-                isset($art['CODIGO']) && stripos($art['CODIGO'], $busqueda) !== false
-            ) || (
-                isset($art['NOMBRE']) && stripos($art['NOMBRE'], $busqueda) !== false
-            );
-        });
+        $stmt = $this->db->prepare("
+            SELECT * FROM cg_articulos 
+            WHERE LOWER(CODIGO) LIKE :busqueda OR LOWER(NOMBRE) LIKE :busqueda 
+            ORDER BY CLAART ASC
+            LIMIT 50
+        ");
+        $stmt->bindValue(':busqueda', $busqueda, PDO::PARAM_STR);
+        $stmt->execute();
 
-        // Reindexa el array filtrado y lo devuelve
-        return array_values($coincidentes);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     // Devuelve solo los artículos cuyos códigos estén en el array proporcionado
     public function getArticulosPorCodigos(array $codigos) {
-        $todos = $this->reader->getRecords();
-        $filtrados = array_filter($todos, function($art) use ($codigos) {
-            return in_array($art['CODIGO'], $codigos);
-        });
-        return array_values($filtrados);
+        if (empty($codigos)) return [];
+
+        // Crea placeholders seguros para PDO
+        $placeholders = implode(',', array_fill(0, count($codigos), '?'));
+
+        $stmt = $this->db->prepare("SELECT * FROM cg_articulos WHERE CODIGO IN ($placeholders)");
+        foreach ($codigos as $i => $codigo) {
+            $stmt->bindValue($i + 1, $codigo, PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Devuelve el total de registros en el archivo DBF
     public function getTotal() {
-        return $this->reader->getRecordCount();
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM cg_articulos");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['total'];
     }
 
-    /*
-    // Método para insertar un nuevo artículo (actualmente comentado)
-    public function insertArticulo($data) {
-        // Generar nuevo CLAART (clave del artículo)
-        $ultimo = $this->obtenerUltimoCodigoCLAART();
-        $nuevoCLAART = $ultimo + 1;
-        $data['CLAART'] = $nuevoCLAART;
+    public function getArticulosFiltrados($filtros, $offset = 0, $limit = 15) {
+        $sql = "SELECT * FROM cg_articulos WHERE 1=1";
+        $params = [];
 
-        // Rellena los campos que no estén definidos con valores por defecto
-        $this->completarCamposPorDefecto($data);
+        if (!empty($filtros['codigo'])) {
+            $sql .= " AND CODIGO = :codigo";
+            $params[':codigo'] = $filtros['codigo'];
+        }
 
-        // Inserta el nuevo registro en el archivo DBF
-        return $this->reader->insertRecord($data);
+        if (!empty($filtros['nombre'])) {
+            $sql .= " AND NOMBRE LIKE :nombre";
+            $params[':nombre'] = '%' . $filtros['nombre'] . '%';
+        }
+
+        $sql .= " ORDER BY CLAART ASC LIMIT :offset, :limit";
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Obtiene el valor máximo actual del campo CLAART para asignar el siguiente
-    public function obtenerUltimoCodigoCLAART() {
-        $registros = $this->reader->getRecords(0, $this->reader->getRecordCount());
-        $max = 0;
-        foreach ($registros as $registro) {
-            if (isset($registro['CLAART']) && is_numeric($registro['CLAART'])) {
-                $max = max($max, intval($registro['CLAART']));
-            }
+    public function getTotalFiltrado($filtros) {
+        $sql = "SELECT COUNT(*) as total FROM cg_articulos WHERE 1=1";
+        $params = [];
+
+        if (!empty($filtros['codigo'])) {
+            $sql .= " AND CODIGO LIKE :codigo";
+            $params[':codigo'] = '%' . $filtros['codigo'] . '%';
         }
-        return $max;
+
+        if (!empty($filtros['nombre'])) {
+            $sql .= " AND NOMBRE LIKE :nombre";
+            $params[':nombre'] = '%' . $filtros['nombre'] . '%';
+        }
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['total'];
     }
 
-    // Rellena los campos faltantes con valores por defecto antes de guardar
-    private function completarCamposPorDefecto(array &$datos) {
-        $porDefecto = [
-            'TYC' => 'T',
-            'LOTES' => 'F',
-            'CADUCA' => 'F',
-            'ESCANDALLO' => 'F',
-            'SERVICIO' => 'F',
-            'MULTILIN' => 'T',
-            'COMPONENTE' => 'F',
-            'SERGAR' => 'F',
-            'MULTIUNI' => 'F',
-            'BAJA' => 'F',
-            'OBLMODIF' => 'F',
-            'CONIVA' => 'F',
-            'AGRUPATASA' => 'F',
-            'CLAPRINTER' => 0,
-            'CLAMENUH' => 0,
-            'CLAGCOCINA' => 0,
-            'COMBINAR' => 'F',
-            'NOAGRUPAR' => 'F',
-            'CLATEMP' => 0,
-            'CLATASA' => 0,
-            'CLAMARCA' => 0,
-            'CLAPV' => 0,
-            'CLAFAM' => 0,
-            'TIPOCOSTE' => 0,
-            'PORCENT' => 0,
-            'ORDEN' => 0,
-            'PVPIVACOM1' => 0,
-            'PVPIVACOM2' => 0,
-            'PVPONLINE' => 0,
-            'PVPOFERTA' => 0,
-            'OFERTA' => 0,
-            'PMP' => 0,
-            'PVP1IVA' => 0,
-            'PVP2IVA' => 0,
-            'PVP3IVA' => 0,
-            'PVP4IVA' => 0,
-            'PVP5IVA' => 0,
-            'PVP6IVA' => 0,
-            'PVP7IVA' => 0,
-            'PVP8IVA' => 0,
-            'PVP9IVA' => 0,
-            'PVP10IVA' => 0,
-            'POSIMG' => 0,
-            'CLAUNI' => 0,
-            'GARMONTH' => 0,
-            'CLAEQUIVA' => 0,
-            'CLAPADRE' => 0,
-            'CODPADRE' => '',
-        ];
+    // Método para obtener todos los articulos sin orden de fabricacion
+public function countArticulosSinOrden($claart) {
+    $stmt = $this->db->prepare("SELECT COUNT(*) FROM cg_pedidos_lineas WHERE COMENT = '' AND CLAART = :claart");
+    $stmt->bindValue(':claart', $claart);
+    $stmt->execute();
+    return (int) $stmt->fetchColumn();
+}
 
-        // Asigna los valores por defecto a los campos faltantes
-        foreach ($porDefecto as $campo => $valor) {
-            if (!isset($datos[$campo]) || $datos[$campo] === '') {
-                $datos[$campo] = $valor;
-            }
-        }
-
-        // Si no hay código padre, se asigna el mismo código del artículo
-        if (empty($datos['CODPADRE']) && isset($datos['CODIGO'])) {
-            $datos['CODPADRE'] = $datos['CODIGO'];
-        }
-
-        // Si no hay descripción corta, se toma del nombre
-        if (empty($datos['SHORTDESC']) && isset($datos['NOMBRE'])) {
-            $datos['SHORTDESC'] = substr($datos['NOMBRE'], 0, 50);
-        }
-
-        // Si no hay descripción larga, también se genera a partir del nombre
-        if (empty($datos['LONGDESC']) && isset($datos['NOMBRE'])) {
-            $datos['LONGDESC'] = substr($datos['NOMBRE'], 0, 254);
-        }
-    }
-    */
 }

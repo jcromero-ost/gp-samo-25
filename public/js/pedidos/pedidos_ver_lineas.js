@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Definimos la función global cargarLineas para cargar las líneas de un pedido
-  window.cargarLineas = function(claped, container, page = 1, limit = 5) {
+window.cargarLineas = function(claped, container, page = 1, limit = 5, orden = '') {
     const offset = (page - 1) * limit;
     container.dataset.page = page;
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('./pedidos_ver_lineas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `CLAPED=${encodeURIComponent(claped)}&offset=${offset}&limit=${limit}`
+body: `CLAPED=${encodeURIComponent(claped)}&offset=${offset}&limit=${limit}&orden_fabricacion=${orden}`
     })
     .then(res => res.json())
     .then(response => {
@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>CLAPED</th>
               <th>Código</th>
-              <th>Descripción</th>
+              <th>Articulo</th>
               <th>Cantidad</th>
-              <th>Precio</th>
+              <th>Color</th>
+              <th>Orden</th>
             </tr>
           </thead>
           <tbody>`;
@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
       data.forEach(l => {
         html += `
           <tr>
-            <td>${l.CLAPED}</td>
             <td>${l.CODIGO}</td>
             <td>${l.LINDESC}</td>
             <td>${l.CANTIDAD}</td>
-            <td>${l.PRECIO}</td>
+            <td>${(l.COLOR_NOMBRE || 'Sin color')}</td>
+            <td>${l.COMENT}</td>
           </tr>`;
       });
 
@@ -64,13 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `
         <div class="d-flex justify-content-between align-items-center mt-2">
           ${page > 1
-            ? `<button class="btn btn-sm btn-outline-primary prev-lineas">Anterior</button>`
+            ? `<button class="btn btn-sm btn-dark prev-lineas">Anterior</button>`
             : `<span></span>`}
 
           <span class="text-muted">Página ${page} de ${totalPages}</span>
 
           ${page < totalPages
-            ? `<button class="btn btn-sm btn-outline-primary next-lineas">Siguiente</button>`
+            ? `<button class="btn btn-sm btn-dark next-lineas">Siguiente</button>`
             : `<span></span>`}
         </div>`;
 

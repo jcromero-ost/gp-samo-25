@@ -1,10 +1,11 @@
 <?php
 
-// Incluye el modelo Cliente, que contiene la lógica para acceder a los datos de clientes
-require_once __DIR__ . '/../../models/Cliente.php';
+// Incluye el modelo Proveedor, que contiene la lógica para acceder a los datos de proveedores
+require_once __DIR__ . '/../../models/Proveedor.php';
 
-// Crea una instancia del modelo Cliente
-$clienteModel = new Cliente();
+// Crea una instancia del modelo Proveedor
+$proveedorModel = new Proveedor();
+
 
 // Recoge filtros desde GET
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -18,8 +19,8 @@ $filtros = [
 ];
 
 // Si el modelo aún no tiene estos métodos, agrégalos (ver más abajo)
-$clientes = $clienteModel->getClientesFiltrados($filtros, $offset, $limit);
-$totalRegistros = $clienteModel->getTotalFiltrado($filtros);
+$proveedores = $proveedorModel->getProveedoresFiltrados($filtros, $offset, $limit);
+$totalRegistros = $proveedorModel->getTotalFiltrado($filtros);
 $totalPaginas = max(1, ceil($totalRegistros / $limit));
 
 if (
@@ -28,7 +29,7 @@ if (
 ) {
     header('Content-Type: application/json');
     echo json_encode([
-        'clientes' => $clientes,
+        'proveedores' => $proveedores,
         'page' => $page,
         'totalPaginas' => $totalPaginas,
     ]);
@@ -45,11 +46,11 @@ $limit = 15;
 // Calcula el offset para la consulta SQL (desde qué registro comenzar)
 $offset = ($page - 1) * $limit;
 
-// Obtiene los clientes de la base de datos usando el modelo, con paginación
-$clientes = $clienteModel->getAllClientes($offset, $limit);
+// Obtiene los proveedores de la base de datos usando el modelo, con paginación
+$proveedores = $proveedorModel->getAllProveedores($offset, $limit);
 
 // Obtiene el total de registros disponibles
-$totalRegistros = $clienteModel->getTotal();
+$totalRegistros = $proveedorModel->getTotal();
 
 // Calcula cuántas páginas hay en total, como mínimo 1
 $totalPaginas = max(1, ceil($totalRegistros / $limit));
@@ -62,10 +63,10 @@ if (
     header('Content-Type: application/json; charset=utf-8');
 
     // Validar que todos los valores sean UTF-8 válidos
-    foreach ($clientes as $i => &$cli) {
+    foreach ($proveedores as $i => &$cli) {
         foreach ($cli as $campo => &$valor) {
             if (!mb_check_encoding($valor, 'UTF-8')) {
-                error_log("Codificación inválida en cliente {$i}, campo {$campo}");
+                error_log("Codificación inválida en proveedor {$i}, campo {$campo}");
                 $valor = ''; // limpiar campo para evitar errores en JSON
             }
         }
@@ -73,7 +74,7 @@ if (
     unset($cli); // rompe referencia
 
     $resultado = [
-        'clientes' => $clientes,
+        'proveedores' => $proveedores,
         'page' => $page,
         'totalPaginas' => $totalPaginas,
     ];
@@ -88,45 +89,8 @@ if (
     exit;
 }
 */
-
-
-/*
-$registroValido = null;
-$registroNuevo = null;
-
-foreach ($clientes as $reg) {
-    if (trim($reg['NOMBRE']) === 'prueba89') {
-        $registroValido = $reg;
-    }
-    if (trim($reg['CODIGO']) === '826155') {  // Cambia aquí al código real del insert
-        $registroNuevo = $reg;
-    }
-}
-
-if (!$registroValido) {
-    die("No se encontró el registro válido (prueba89).");
-}
-
-if (!$registroNuevo) {
-    die("No se encontró el registro nuevo insertado desde PHP.");
-}
-
-function compararRegistros($r1, $r2) {
-    foreach ($r1 as $campo => $valor1) {
-        $valor2 = $r2[$campo] ?? null;
-        if ($valor1 !== $valor2) {
-            echo "Diferencia en $campo:\n";
-            echo "  Registro válido: '".addslashes($valor1)."'\n";
-            echo "  Registro PHP:    '".addslashes($valor2)."'\n\n";
-        }
-    }
-}
-
-compararRegistros($registroValido, $registroNuevo);
-*/
-
 // Define la ruta al archivo de contenido específico de la vista actual
-$view = __DIR__ . '/clientes_content.php';
+$view = __DIR__ . '/proveedores_content.php';
 
 // Incluye el archivo de layout principal, que usa $view para insertar el contenido dinámicamente
 include __DIR__ . '/../layout.php';

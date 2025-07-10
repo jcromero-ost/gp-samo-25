@@ -3,7 +3,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Función para cargar los artículos vía AJAX
   window.cargarArticulosPagina = function(page = 1) {
-    const url = `./articulos?page=${page}`; // URL con el número de página
+    // Obtener valores del formulario de filtros
+    const codigo = document.getElementById('filtrar_codigo').value.trim();
+    const nombre = document.getElementById('filtrar_nombre').value.trim();
+    const cantidad = document.getElementById('cantidad').value;
+
+    // Construir query string con filtros
+    const params = new URLSearchParams({
+        page,
+        codigo,
+        nombre,
+        cantidad
+    });
+
+    const url = `./articulos?${params.toString()}`; // URL con el número de página
 
     // Llamada fetch al backend para obtener los artículos en formato JSON
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
@@ -20,66 +33,58 @@ document.addEventListener('DOMContentLoaded', () => {
               <tr>
                 <th>Código</th>
                 <th>Nombre</th>
-                <th>Color</th>
-                <th>Peso</th>
-                <th>Modelo</th>
-                <th>Marca</th>
-                <th class="text-center">Materias Primas</th>
+                <th class="text-center">Colores</th>
               </tr>
             </thead>
             <tbody>`;
 
         // Itera sobre los artículos recibidos
         data.articulos.forEach((articulo, i) => {
-          const materiasCount = articulo.materias_count || 0; // Cantidad de materias primas
+          const coloresCount = articulo.colores_count || 0; // Cantidad de colores
 
           html += `
-    <tr>
-      <td>${articulo.CODIGO}</td>
-      <td>${articulo.NOMBRE}</td>
-      <td>${articulo.CLAPRO}</td>
-      <td>${articulo.PVP1}</td>
-      <td>Modelo</td>
-      <td>Marca</td>
-      <td class="text-center">`;
+            <tr>
+              <td>${articulo.CODIGO}</td>
+              <td>${articulo.NOMBRE}</td>
+              <td class="text-center">`;
 
-          // Si tiene materias primas, muestra botones para expandir/cerrar
-          if (materiasCount > 0) {
+          // Si tiene colores, muestra botones para expandir/cerrar
+          if (coloresCount > 0) {
             html += `
-      <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapseLines${i}"
-        aria-expanded="false"
-        aria-controls="collapseLines${i}">
-        <i class="bi bi-caret-down-square me-2"></i>Ver materias primas (${materiasCount})
-      </button>
-      <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapseLines${i}"
-        aria-expanded="true"
-        aria-controls="collapseLines${i}">
-        <i class="bi bi-caret-up-square me-2"></i>Ocultar materias primas
-      </button>
-    `;
+              <button class="btn btn-sm btn-primary toggle-lines-btn show-btn" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseLines${i}"
+                aria-expanded="false"
+                aria-controls="collapseLines${i}">
+                <i class="bi bi-caret-down-square me-2"></i>Ver colores (${coloresCount})
+              </button>
+              <button class="btn btn-sm btn-secondary toggle-lines-btn hide-btn d-none" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseLines${i}"
+                aria-expanded="true"
+                aria-controls="collapseLines${i}">
+                <i class="bi bi-caret-up-square me-2"></i>Ocultar colores
+              </button>
+            `;
           } else {
-            // Si no tiene materias primas, botón deshabilitado
+            // Si no tiene colores, botón deshabilitado
             html += `
-      <button class="btn btn-sm btn-danger" type="button" disabled>
-        No tiene materias primas
-      </button>
-    `;
+              <button class="btn btn-sm btn-danger" type="button" disabled>
+                No tiene colores
+              </button>
+            `;
           }
 
           html += `
-      </td>
-    </tr>
-    <tr class="collapse" id="collapseLines${i}">
-      <td colspan="7">
-        <div class="p-2">
-          <div class="mt-2 materias-content" data-codigo="${articulo.CODIGO}" data-loaded="false"></div>
-        </div>
-      </td>
-    </tr>`;
+          </td>
+          </tr>
+          <tr class="collapse" id="collapseLines${i}">
+            <td colspan="7">
+              <div class="p-2">
+                <div class="mt-2 colores-content" data-codigo="${articulo.CLAART}" data-loaded="false"></div>
+              </div>
+            </td>
+          </tr>`;
         });
 
         html += `
@@ -114,8 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
         inicializarEventosCollapse();
         inicializarToggleButtons();
 
-        // Limpia y marca las materias primas como no cargadas aún
-        container.querySelectorAll('.materias-content').forEach(div => {
+        // Limpia y marca las colores como no cargadas aún
+        container.querySelectorAll('.colores-content').forEach(div => {
           div.dataset.loaded = 'false';
           div.dataset.page = '1';
           div.innerHTML = '';
@@ -126,58 +131,104 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Carga las materias primas de un artículo específico
-  function cargarMaterias(codigoPadre, container, page = 1, limit = 5) {
-    fetch('./obtener_materias_por_codigo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `codigo=${encodeURIComponent(codigoPadre)}`
-    })
-    .then(res => res.json())
-    .then(data => {
-      container.dataset.loaded = 'true';
+    function inicializarEventosFiltros() {
+      document.getElementById('filtrar_codigo').addEventListener('input', () => cargarArticulosPagina(1));
+      document.getElementById('filtrar_nombre').addEventListener('input', () => cargarArticulosPagina(1));
+      document.getElementById('cantidad').addEventListener('change', () => cargarArticulosPagina(1));
+    }
 
-      // Si no hay datos, se informa al usuario
-      if (!Array.isArray(data) || data.length === 0) {
-        container.innerHTML = '<div class="text-muted">Este artículo no tiene materias primas.</div>';
+  // Carga las colores de un artículo específico
+function cargarColores(codigoPadre, container, page = 1, limit = 5) {
+  const offset = (page - 1) * limit;
+  container.dataset.page = page;
+
+  // Animación de carga
+  container.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <img src="./public/images/maquina_coser.gif" width="80" alt="Cargando...">
+        <span>Cargando colores...</span>
+      </div>
+    </div>`;
+
+  fetch('./obtener_colores_por_codigo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `codigo=${encodeURIComponent(codigoPadre)}&page=${page}&limit=${limit}`
+  })
+    .then(res => res.json())
+    .then(response => {
+      const colores = response.colores;
+      const totalPaginas = response.totalPaginas;
+
+      if (!colores || colores.length === 0) {
+        container.innerHTML = '<p class="text-muted">Este artículo no contiene colores.</p>';
         return;
       }
 
-      // Construcción de tabla con materias primas
       let html = `
-        <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>`;
+      <div class="table-responsive rounded-3 overflow-hidden shadow" style="background-color: #fff;">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Número</th>
+              <th>Color</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-      data.forEach(materia => {
+      colores.forEach(color => {
         html += `
-              <tr>
-                <td>${materia.CODIGO}</td>
-                <td>${materia.NOMBRE}</td>
-                <td>${materia.CANTIDAD}</td>
-              </tr>`;
+          <tr>
+            <td>${color.NUMCOLOR}</td>
+            <td>${color.COLOR}</td>
+          </tr>`;
       });
 
       html += `
-            </tbody>
-          </table>
+          </tbody>
+        </table>
+      </div>`;
+
+      // Controles de paginación internos (tipo botones)
+      html += `
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          ${page > 1
+            ? `<button class="btn btn-sm btn-dark prev-colores">Anterior</button>`
+            : `<span></span>`}
+
+          <span class="text-muted">Página ${page} de ${totalPaginas}</span>
+
+          ${page < totalPaginas
+            ? `<button class="btn btn-sm btn-dark next-colores">Siguiente</button>`
+            : `<span></span>`}
         </div>`;
 
       container.innerHTML = html;
+      container.dataset.totalPages = totalPaginas;
+      container.dataset.loaded = 'true';
 
+      const prevBtn = container.querySelector('.prev-colores');
+      const nextBtn = container.querySelector('.next-colores');
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          cargarColores(codigoPadre, container, page - 1, limit);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          cargarColores(codigoPadre, container, page + 1, limit);
+        });
+      }
     })
-    .catch(err => {
-      console.error('Error al cargar materias primas:', err);
-      container.innerHTML = '<div class="text-danger">Error al cargar materias primas.</div>';
+    .catch(() => {
+      container.innerHTML = `<p class="text-danger">Error al cargar colores.</p>`;
     });
-  }
+}
+
+
 
   // Inicializa los eventos de colapso
   function inicializarEventosCollapse() {
@@ -186,18 +237,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Evento al mostrar el colapsable
       collapseEl.addEventListener('shown.bs.collapse', () => {
-        const container = collapseEl.querySelector('.materias-content');
+        const container = collapseEl.querySelector('.colores-content');
         if (container.dataset.loaded === 'true') return; // Ya cargado
 
         const codigo = container.dataset.codigo;
-        cargarMaterias(codigo, container, 1, 5);
+        cargarColores(codigo, container, 1, 5);
       });
 
       collapseEl.dataset.eventsAttached = 'true';
     });
   }
 
-  // Inicializa el comportamiento de los botones mostrar/ocultar materias
+  // Inicializa el comportamiento de los botones mostrar/ocultar colores
   function inicializarToggleButtons() {
     const toggleButtons = document.querySelectorAll('.toggle-lines-btn');
 
@@ -237,4 +288,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Carga inicial de la primera página de artículos al cargar el DOM
   cargarArticulosPagina(1);
+  inicializarEventosFiltros();
 });

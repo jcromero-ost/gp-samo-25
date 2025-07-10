@@ -2,8 +2,8 @@
 // Incluye el archivo de conexión a la base de datos
 require_once __DIR__ . '/DatabaseLOCAL.php';
 
-// Definición de la clase Cliente, que se encarga de manejar operaciones sobre la tabla 'clientes'
-class Cliente {
+// Definición de la clase Proveedor, que se encarga de manejar operaciones sobre la tabla 'proveedores'
+class Proveedor {
     private $db;
     private $ruta;
 
@@ -11,9 +11,9 @@ class Cliente {
         $this->db = DatabaseLOCAL::connect(); // Obtiene la conexión a la base de datos desde DatabaseLOCAL
     }
 
-    // Método para obtener todos los clientes ordenados por nombre ascendentemente
-    public function getAllClientes($offset = 0, $limit = 15) {
-        $stmt = $this->db->prepare("SELECT * FROM cg_clientes ORDER BY CLACLI ASC LIMIT :offset, :limit");
+    // Método para obtener todos los proveedores ordenados por nombre ascendentemente
+    public function getAllProveedores($offset = 0, $limit = 15) {
+        $stmt = $this->db->prepare("SELECT * FROM cg_proveedores ORDER BY CLAPRO ASC LIMIT :offset, :limit");
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->execute();
@@ -21,13 +21,13 @@ class Cliente {
     }
 
     public function getTotal() {
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM cg_clientes");
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM cg_proveedores");
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$result['total'];
     }
 
-    public function getClientesFiltrados($filtros, $offset = 0, $limit = 15) {
-        $sql = "SELECT * FROM cg_clientes WHERE 1=1";
+    public function getProveedoresFiltrados($filtros, $offset = 0, $limit = 15) {
+        $sql = "SELECT * FROM cg_proveedores WHERE 1=1";
         $params = [];
 
         if (!empty($filtros['codigo'])) {
@@ -45,7 +45,7 @@ class Cliente {
             $params[':telefono'] = '%' . $filtros['telefono'] . '%';
         }
 
-        $sql .= " ORDER BY CLACLI ASC LIMIT :offset, :limit";
+        $sql .= " ORDER BY CLAPRO ASC LIMIT :offset, :limit";
 
         $stmt = $this->db->prepare($sql);
 
@@ -61,7 +61,7 @@ class Cliente {
     }
 
     public function getTotalFiltrado($filtros) {
-        $sql = "SELECT COUNT(*) as total FROM cg_clientes WHERE 1=1";
+        $sql = "SELECT COUNT(*) as total FROM cg_proveedores WHERE 1=1";
         $params = [];
 
         if (!empty($filtros['codigo'])) {

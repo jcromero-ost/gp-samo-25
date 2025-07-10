@@ -1,5 +1,5 @@
 <div class="m-4">
-  <h2 class="titulo mb-4">Crear Departamento</h2>
+  <h2 class="titulo mb-4">Departamentos</h2>
 
 <button id="toggleBtn" class="btn btn-success">
   <i class="bi bi-caret-down-square"></i> Crear nuevo departamento

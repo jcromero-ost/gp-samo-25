@@ -8,27 +8,51 @@ require_once __DIR__ . '/../config/config.php';
 class EscandalloController {
 
     // Método para crear un nuevo escandallo (usualmente al enviar un formulario)
-public function obtenerMateriasPorCodigoPadre() {
-    header('Content-Type: application/json');
+    public function obtenerMateriasPorCodigoPadre() {
+        header('Content-Type: application/json');
 
-    $codigo = $_POST['codigo'] ?? '';
+        $codigo = $_POST['codigo'] ?? '';
 
-    if (!$codigo) {
-        echo json_encode(["error" => "Código no proporcionado"]);
-        exit;
+        if (!$codigo) {
+            echo json_encode(["error" => "Código no proporcionado"]);
+            exit;
+        }
+
+        $escandalloModel = new Escandallo();
+        $materias = $escandalloModel->getMateriasPrimasConDatosDelArticulo($codigo);
+
+        if (!is_array($materias)) {
+            echo json_encode(["error" => "No se pudo obtener materias"]);
+            exit;
+        }
+
+        echo json_encode($materias);
     }
 
-    $escandalloModel = new Escandallo();
-    $materias = $escandalloModel->getMateriasPrimasConDatosDelArticulo($codigo);
+    public function obtenerMateriasPorCodigoPadrePaginadas() {
+        header('Content-Type: application/json');
 
-    if (!is_array($materias)) {
-        echo json_encode(["error" => "No se pudo obtener materias"]);
-        exit;
+        $codigo = $_POST['codigo'] ?? '';
+        $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
+        $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 5;
+        $offset = ($page - 1) * $limit;
+
+        if (!$codigo) {
+            echo json_encode(["error" => "Código no proporcionado"]);
+            exit;
+        }
+
+        $escandalloModel = new Escandallo();
+        $materias = $escandalloModel->getMateriasPrimasConPaginacion($codigo, $limit, $offset);
+        $total = $escandalloModel->countMateriasPrimas($codigo);
+        $totalPaginas = max(1, ceil($total / $limit));
+
+        echo json_encode([
+            'materias' => $materias,
+            'page' => $page,
+            'totalPaginas' => $totalPaginas
+        ]);
     }
-
-    echo json_encode($materias);
-}
-
 
     // Método para crear un nuevo escandallo (usualmente al enviar un formulario)
     public function store() {

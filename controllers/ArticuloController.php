@@ -42,33 +42,4 @@ class ArticuloController {
         // Devuelve el resultado como JSON
         echo json_encode($resultado);
     }
-
-    // Método para guardar un nuevo artículo
-    public function store($datos) {
-        // Inicia la sesión para poder usar variables de sesión
-        session_start();
-
-        // Inserta el artículo
-        try {
-            // Crea una nueva instancia del modelo Articulo
-            $this->articulo = new Articulo();
-
-            // Llama al método para insertar el artículo con los datos proporcionados
-            $this->articulo->insertArticulo($datos);
-
-            // Guarda un mensaje de éxito en la sesión
-            $_SESSION['success'] = 'Artículo creado correctamente.';
-
-            // Redirige a la lista de artículos
-            header('Location: ' . BASE_URL . '/articulos');
-            exit;
-        } catch (Exception $e) {
-            // Si ocurre un error, guarda el mensaje en la sesión
-            $_SESSION['error'] = 'Error al insertar el artículo: ' . $e->getMessage();
-
-            // Redirige a la vista de creación de artículos
-            header('Location: ' . BASE_URL . '/articulos_crear');
-            exit;
-        }
-    }
 }

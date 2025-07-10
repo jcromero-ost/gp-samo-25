@@ -18,7 +18,8 @@ $usuariosActive = (
 
 $clientesActive = (
     $currentPath === BASE_URL . '/clientes_crear' ||
-    $currentPath === BASE_URL . '/clientes'
+    $currentPath === BASE_URL . '/clientes' ||
+    $currentPath === BASE_URL . '/proveedores'
 );
 
 $articulosActive = (
@@ -74,29 +75,25 @@ $pedidosActive = (
             </li>
 
             <li class="nav-item dropdown <?= $clientesActive ? 'active' : '' ?>">
-                <a class="nav-link dropdown-toggle <?= $clientesActive ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">Clientes</a>
+                <a class="nav-link dropdown-toggle <?= $clientesActive ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">Personas</a>
                 <ul class="dropdown-menu dropdown-menu-dark">
-                    <li class="d-none">
-                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/clientes_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/clientes_crear">Crear clientes</a>
-                    </li>
-
                     <li>
                         <a class="dropdown-item <?= $currentPath === BASE_URL . '/clientes' ? 'active' : '' ?>" href="<?= BASE_URL ?>/clientes"><i class="bi bi-person-lines-fill me-2"></i>Gestionar clientes</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/clientes' ? 'active' : '' ?>" href="<?= BASE_URL ?>/proveedores"><i class="bi bi-person-rolodex me-2"></i>Gestionar proveedores</a>
                     </li>
                 </ul>
             </li>
 
             <li class="nav-item dropdown <?= $articulosActive ? 'active' : '' ?>">
-                <a class="nav-link dropdown-toggle <?= $articulosActive ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">Articulos</a>
+                <a class="nav-link dropdown-toggle <?= $articulosActive ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">Escandallos</a>
                 <ul class="dropdown-menu dropdown-menu-dark">
-                    <li class="d-none">
-                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/articulos_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/articulos_crear"><i class="bi bi-plus-square me-2"></i>Crear articulos</a>
+                    <li>
+                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/escandallos_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/escandallos_crear"><i class="bi bi-box2 me-2"></i>Gestionar escandallos</a>
                     </li>
                     <li>
-                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/escandallos_crear' ? 'active' : '' ?>" href="<?= BASE_URL ?>/escandallos_crear"><i class="bi bi-plus-square me-2"></i>Crear escandallo</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/articulos' ? 'active' : '' ?>" href="<?= BASE_URL ?>/articulos"><i class="bi bi-box-seam me-2"></i>Gestionar articulos</a>
+                        <a class="dropdown-item <?= $currentPath === BASE_URL . '/articulos' ? 'active' : '' ?>" href="<?= BASE_URL ?>/articulos"><i class="bi bi-box-seam me-2"></i>Gestionar artículos</a>
                     </li>
                 </ul>
             </li>
@@ -130,7 +127,7 @@ $pedidosActive = (
             <?php foreach ($ejercicios as $ejercicio): ?>
                 <option value="<?= htmlspecialchars($ejercicio['CLAEJE']) ?>"
                     <?= (isset($_SESSION['ejercicio']) && $_SESSION['ejercicio'] == $ejercicio['CLAEJE']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($ejercicio['CLAEJE']) ?> <?= htmlspecialchars($ejercicio['NOMEJE']) ?>
+                    <?= htmlspecialchars($ejercicio['NOMEJE']) ?>
                 </option>
             <?php endforeach; ?>
         </select>
